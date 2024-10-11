@@ -1,0 +1,39 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invoice-print-area,
+  .invoice-print-area * {
+    visibility: visible;
+  }
+  .invoice-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+  
+  .invoice-print-area {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  .invoice-print-area table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .invoice-print-area th,
+  .invoice-print-area td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .invoice-print-area th {
+    background-color: #f2f2f2;
+  }
+}
