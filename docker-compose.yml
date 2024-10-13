@@ -2,7 +2,6 @@ version: "3.8"
 services:
   app:
     build: .
-    container_name: tutorias_universitarias_website
     ports:
       - "3001:3001"
     environment:
