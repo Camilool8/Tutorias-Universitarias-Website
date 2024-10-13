@@ -41,10 +41,6 @@ const verifyToken = (req, res, next) => {
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "../dist")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/index.html"));
-});
-
 // Admin routes
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
@@ -268,6 +264,10 @@ app.get("/api/analytics", verifyToken, async (req, res) => {
     console.error("Error fetching analytics:", error);
     res.status(500).json({ error: "Error fetching analytics" });
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
 });
 
 app.listen(port, () => {
