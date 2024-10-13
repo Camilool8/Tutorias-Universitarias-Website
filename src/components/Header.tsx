@@ -40,7 +40,7 @@ const Header: React.FC = () => {
               icon={<Briefcase size={18} />}
               text="Servicios"
             />
-            <NavLink to="/faq" icon={<HelpCircle size={18} />} text="FAQ" />
+            <NavLink to="/contact" icon={<HelpCircle size={18} />} text="FAQ" />
           </nav>
           <div className="hidden lg:block">
             <Link
@@ -84,7 +84,7 @@ const Header: React.FC = () => {
             onClick={toggleMenu}
           />
           <NavLink
-            to="/faq"
+            to="/contact"
             icon={<HelpCircle size={18} />}
             text="FAQ"
             onClick={toggleMenu}

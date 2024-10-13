@@ -8,7 +8,9 @@ import {
   Mail,
   Send,
   AlertCircle,
+  FileText
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import PageTransition from "../components/PageTransition";
 
 const UploadForm: React.FC = () => {
@@ -70,6 +72,7 @@ const UploadForm: React.FC = () => {
           ...formData,
           status: "En progreso",
           price: 0,
+          profit: 0,
         }),
       });
 
@@ -88,7 +91,6 @@ const UploadForm: React.FC = () => {
 *📆 Fecha Entrega:* ${formData.dueDate} ${formData.dueTime}
 *📧 Correo Electrónico:* ${formData.email}
 
-Los documentos necesarios para la tarea serán enviados durante la conversación.
       `);
 
       const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
@@ -97,7 +99,7 @@ Los documentos necesarios para la tarea serán enviados durante la conversación
         newWindow.location.href = whatsappUrl;
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error al subir el formulario:", error);
       if (newWindow) {
         newWindow.close();
       }
@@ -109,11 +111,10 @@ Los documentos necesarios para la tarea serán enviados durante la conversación
       <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl sm:text-6xl font-bold mb-8 text-center text-indigo-800">
-            Cotiza Con Nosotros
+            Cotiza Ahora
           </h1>
           <p className="text-xl sm:text-2xl text-center mb-12 text-gray-600">
-            Completa el formulario a continuación con los detalles de tu tarea.
-            Te contactaremos por WhatsApp con una cotización personalizada.
+            Completa el formulario con los detalles de tu tarea para recibir una cotización personalizada.
           </p>
           <form
             onSubmit={handleSubmit}
@@ -168,20 +169,26 @@ Los documentos necesarios para la tarea serán enviados durante la conversación
                 placeholder="tu@email.com"
               />
             </div>
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 space-y-4">
+              <p className="text-sm text-gray-600 flex items-start">
+                <FileText size={16} className="mr-2 mt-1 flex-shrink-0" />
+                <span>
+                  Cualquier detalle adicional o documento relacionado con tu tarea 
+                  podrá ser enviado por WhatsApp una vez estemos en contacto.
+                </span>
+              </p>
               <button
                 type="submit"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-colors flex items-center justify-center text-lg w-full sm:w-auto"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-colors flex items-center justify-center text-lg"
               >
                 <Send className="mr-2" size={18} />
-                Enviar y Recibir Cotización por WhatsApp
+                Enviar y Recibir Cotización
               </button>
+              <p className="text-sm text-gray-600 flex items-center justify-center">
+                <FaWhatsapp size={16} className="mr-2 text-green-500" />
+                Te contactaremos por WhatsApp con tu cotización personalizada.
+              </p>
             </div>
-            <p className="mt-4 text-sm text-gray-600 flex items-center justify-center">
-              <AlertCircle size={16} className="mr-1" />
-              Si el enlace de WhatsApp no funciona, por favor escribe
-              directamente al número: ‪<strong>+34 608 83 72 72‬.</strong>
-            </p>
           </form>
         </div>
       </div>

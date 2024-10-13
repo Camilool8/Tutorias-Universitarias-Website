@@ -8,10 +8,15 @@ import {
   Calculator,
   ExternalLink,
 } from 'lucide-react';
+import { FaWhatsapp } from "react-icons/fa";
 import PageTransition from '../components/PageTransition';
 
 const Contact: React.FC = () => {
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
+  const whatsappNumber = "34608837272";
+  const whatsappMessage = encodeURIComponent(
+    "¡Hola! Me interesa obtener una cotización para una tutoría universitaria. ¿Podrían ayudarme a potenciar mi rendimiento académico?"
+  );
 
   const toggleQuestion = (index: number) => {
     setOpenQuestion(openQuestion === index ? null : index);
@@ -81,8 +86,8 @@ const Contact: React.FC = () => {
                 />
                 <ContactItem
                   icon={<Mail />}
-                  text="info@tutoriasuniversitarias.com"
-                  href="mailto:info@tutoriasuniversitarias.com"
+                  text="soporte.tutoriasuniversitarias@gmail.com"
+                  href="mailto:soporte.tutoriasuniversitarias@gmail.com"
                 />
               </ul>
             </div>
@@ -94,7 +99,7 @@ const Contact: React.FC = () => {
                 Lunes a Domingo: 12:00 AM - 11:59 PM
               </p>
               <p className="text-indigo-600 font-semibold text-lg">
-                Respuesta garantizada en menos de 24 horas
+                Servicio las 24 horas del dia.
               </p>
             </div>
           </div>
@@ -116,22 +121,33 @@ const Contact: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-center">
-            <h2 className="text-3xl font-semibold mb-6 text-indigo-800">
-              ¿Listo para empezar?
-            </h2>
-            <p className="text-xl mb-8 text-gray-700 max-w-2xl mx-auto">
-              Si tienes más preguntas o estás listo para solicitar ayuda, no
-              dudes en contactarnos.
-            </p>
-            <a
-              href="/cotizar"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg font-semibold rounded-full hover:from-indigo-700 hover:to-purple-700 transition-colors duration-300"
-            >
-              <Calculator className="mr-2" size={24} />
-              Solicitar Cotización
-            </a>
-          </div>
+            <div className="text-center">
+              <h2 className="text-3xl font-semibold mb-6 text-indigo-800">
+                ¿Listo para empezar?
+              </h2>
+              <p className="text-xl mb-8 text-gray-700 max-w-2xl mx-auto">
+                Si tienes más preguntas o estás listo para solicitar ayuda, no
+                dudes en contactarnos.
+              </p>
+              <div className="flex justify-center items-center space-x-4">
+                <a
+                  href="/cotizar"
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg font-semibold rounded-full hover:from-indigo-700 hover:to-purple-700 transition-colors duration-300"
+                >
+                  <Calculator className="mr-2" size={24} />
+                  Solicitar Cotización
+                </a>
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-14 h-14 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all duration-300"
+                  aria-label="Contactar por WhatsApp"
+                >
+                  <FaWhatsapp size={24} />
+                </a>
+              </div>
+            </div>
         </div>
       </div>
     </PageTransition>
