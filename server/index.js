@@ -5,11 +5,16 @@ import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -32,6 +37,13 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
+});
 
 // Admin routes
 app.post("/api/login", async (req, res) => {
