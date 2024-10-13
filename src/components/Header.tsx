@@ -26,7 +26,7 @@ const Header: React.FC = () => {
             className="flex items-center space-x-2 text-2xl font-bold"
           >
             <img src="/images/logo.svg" alt="Logo" width={45} height={45} />
-            <span className="hidden sm:inline">Tutorias Universitarias</span>
+            <span className="hidden sm:inline">Tutorías Universitarias</span>
           </Link>
           <nav className="hidden lg:flex space-x-4">
             <NavLink to="/" icon={<Home size={18} />} text="Inicio" />

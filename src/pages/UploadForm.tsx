@@ -170,13 +170,6 @@ const UploadForm: React.FC = () => {
               />
             </div>
             <div className="mt-8 space-y-4">
-              <p className="text-sm text-gray-600 flex items-start">
-                <FileText size={16} className="mr-2 mt-1 flex-shrink-0" />
-                <span>
-                  Cualquier detalle adicional o documento relacionado con tu tarea 
-                  podrá ser enviado por WhatsApp una vez estemos en contacto.
-                </span>
-              </p>
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-colors flex items-center justify-center text-lg"
@@ -184,10 +177,14 @@ const UploadForm: React.FC = () => {
                 <Send className="mr-2" size={18} />
                 Enviar y Recibir Cotización
               </button>
-              <p className="text-sm text-gray-600 flex items-center justify-center">
-                <FaWhatsapp size={16} className="mr-2 text-green-500" />
-                Te contactaremos por WhatsApp con tu cotización personalizada.
-              </p>
+              <InfoBox 
+                icon={<FaWhatsapp size={16} className="text-green-500" />}
+                text="Te contactaremos por WhatsApp con tu cotización personalizada."
+              />
+              <InfoBox 
+                icon={<FileText size={16} />}
+                text="Detalles adicionales o documentos podrán ser enviados por WhatsApp posteriormente."
+              />
             </div>
           </form>
         </div>
@@ -208,6 +205,15 @@ interface FormFieldProps {
   placeholder?: string;
   options?: { value: string; label: string }[];
 }
+
+const InfoBox: React.FC<InfoBoxProps> = ({ icon, text }) => {
+  return (
+    <div className="bg-gray-50 p-3 rounded-lg flex items-start space-x-2 text-sm text-gray-600">
+      <div className="flex-shrink-0 mt-0.5">{icon}</div>
+      <p>{text}</p>
+    </div>
+  );
+};
 
 const FormField: React.FC<FormFieldProps> = ({
   icon,

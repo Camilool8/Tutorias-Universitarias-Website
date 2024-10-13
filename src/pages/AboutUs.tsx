@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Award, Target, Users, Briefcase, Shield, ChevronDown } from 'lucide-react';
+import { FaWhatsapp } from "react-icons/fa";
 import PageTransition from '../components/PageTransition';
 
 const AboutUs: React.FC = () => {
   const [expandedValue, setExpandedValue] = useState<string | null>(null);
+  const whatsappNumber = "34608837272";
+  const whatsappMessage = encodeURIComponent(
+    "¡Hola! Me interesa obtener una cotización para una tutoría universitaria. ¿Podrían ayudarme a potenciar mi rendimiento académico?"
+  );
 
   const toggleExpand = (value: string) => {
     setExpandedValue(expandedValue === value ? null : value);
@@ -124,6 +129,30 @@ const AboutUs: React.FC = () => {
             <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
               Nos comprometemos a proporcionar un servicio ético, confidencial y personalizado que se adapte a las necesidades únicas de cada estudiante. Nuestro objetivo es no solo ayudar con tareas específicas, sino también fomentar el aprendizaje y el crecimiento académico a largo plazo.
             </p>
+          </motion.div>
+          <motion.div 
+            className="mt-20"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+          >
+            <div className="bg-white p-8 rounded-3xl shadow-xl">
+              <div className="flex flex-col items-center text-center">
+                <h2 className="text-3xl font-bold mb-4 text-indigo-800">¿Tienes alguna pregunta?</h2>
+                <p className="text-lg text-gray-700 mb-6 max-w-2xl">
+                  Estamos aquí para ayudarte. Contáctanos directamente por WhatsApp si necesitas más información o tienes alguna consulta.
+                </p>
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 bg-green-500 text-white text-lg font-semibold rounded-full hover:bg-green-600 transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  <FaWhatsapp size={24} className="mr-2" />
+                  Contáctanos por WhatsApp
+                </a>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>

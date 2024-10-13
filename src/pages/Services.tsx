@@ -20,6 +20,7 @@ import {
   X,
   ChevronDown,
 } from 'lucide-react';
+import { FaWhatsapp } from "react-icons/fa";
 
 Modal.setAppElement('#root');
 
@@ -29,6 +30,10 @@ const Services: React.FC = () => {
   const [selectedService, setSelectedService] = useState('');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const navigate = useNavigate();
+  const whatsappNumber = "34608837272";
+  const whatsappMessage = encodeURIComponent(
+    "¡Hola! Me interesa obtener una cotización para una tutoría universitaria. ¿Podrían ayudarme a potenciar mi rendimiento académico?"
+  );
 
   const customStyles = {
     content: {
@@ -250,6 +255,25 @@ const Services: React.FC = () => {
               <TaskType icon={<Globe />} title="Traducciones" />
               <TaskType icon={<BookOpen />} title="Investigación Académica" />
             </div>
+          </motion.div>
+          <motion.div 
+            className="mt-16 text-center"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1 }}
+          >
+            <h2 className="text-3xl font-semibold mb-6 text-indigo-800">
+              ¿Prefieres un contacto mas directo?
+            </h2>
+            <a
+              href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-8 py-4 bg-green-500 text-white text-lg font-semibold rounded-full hover:bg-green-600 transition-all duration-300"
+            >
+              <FaWhatsapp size={24} className="mr-2" />
+              Contactar por WhatsApp
+            </a>
           </motion.div>
         </div>
       </div>
