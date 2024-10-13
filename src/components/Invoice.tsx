@@ -73,7 +73,7 @@ const Invoice: React.FC<InvoiceProps> = ({ submission, onClose }) => {
               </div>
               <div>
                 <div><strong>Tutorías Universitarias</strong></div>
-                <div>info@tutoriasuniversitarias.com</div>
+                <div>soporte.tutoriasuniversitarias@gmail.com</div>
                 <div>+34 608 83 72 72</div>
               </div>
             </div>
@@ -177,7 +177,7 @@ const Invoice: React.FC<InvoiceProps> = ({ submission, onClose }) => {
                 Tutorías Universitarias
               </div>
               <div className="text-gray-600">
-                info@tutoriasuniversitarias.com
+                soporte.tutoriasuniversitarias@gmail.com
               </div>
               <div className="text-gray-600">+34 608 83 72 72</div>
             </div>
