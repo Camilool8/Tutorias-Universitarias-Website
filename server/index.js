@@ -39,7 +39,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../public_html")));
+app.use(express.static(path.join(__dirname, "../dist")));
 
 // Admin routes
 app.post("/api/login", async (req, res) => {
