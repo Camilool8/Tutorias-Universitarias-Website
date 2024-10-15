@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import ssr from "vite-plugin-ssr/plugin";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { compression } from "vite-plugin-compression2";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
@@ -8,7 +7,6 @@ import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 export default defineConfig({
   plugins: [
     react(),
-    ssr(),
     ViteMinifyPlugin({}),
     compression({
       algorithm: "gzip",
