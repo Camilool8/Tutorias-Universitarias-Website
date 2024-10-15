@@ -23,9 +23,6 @@ services:
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
-      - ./nginx-proxy-config:/etc/nginx/conf.d
-    environment:
-      - NGINX_PROXY_CONTAINER=nginx-proxy
     restart: always
 
   acme-companion:
