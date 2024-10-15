@@ -16,9 +16,7 @@ import { FlagIcon } from "react-flag-kit";
 
 const LandingPage: React.FC = () => {
   const whatsappNumber = "34608837272";
-  const whatsappMessage = encodeURIComponent(
-    "¡Hola! Me interesa obtener una cotización para una tutoría universitaria. ¿Podrían ayudarme a potenciar mi rendimiento académico?"
-  );
+  const whatsappMessage = encodeURIComponent("¡Hola!");
 
   return (
     <div className="bg-gradient-to-b from-blue-50 to-purple-50">

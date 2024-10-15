@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   PlusCircle,
   MinusCircle,
   Mail,
   Phone,
-  MapPin,
   Calculator,
   ExternalLink,
-} from 'lucide-react';
+} from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import PageTransition from '../components/PageTransition';
+import PageTransition from "../components/PageTransition";
 
 const Contact: React.FC = () => {
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const whatsappNumber = "34608837272";
-  const whatsappMessage = encodeURIComponent(
-    "¡Hola! Me interesa obtener una cotización para una tutoría universitaria. ¿Podrían ayudarme a potenciar mi rendimiento académico?"
-  );
+  const whatsappMessage = encodeURIComponent("¡Hola!");
 
   const toggleQuestion = (index: number) => {
     setOpenQuestion(openQuestion === index ? null : index);
@@ -25,47 +22,46 @@ const Contact: React.FC = () => {
 
   const faqData = [
     {
-      question: '¿Cómo funciona el proceso de cotización?',
+      question: "¿Cómo funciona el proceso de cotización?",
       answer:
         "Simplemente completa el formulario en la página 'Cotizar' con los detalles de tu tarea. Nuestro equipo revisará la información y te enviará una cotización personalizada a tu WhatsApp en poco tiempo.",
     },
     {
-      question: '¿Cuánto tiempo toma recibir mi tarea completada?',
+      question: "¿Cuánto tiempo toma recibir mi tarea completada?",
       answer:
-        'El tiempo de entrega depende de la complejidad y extensión de la tarea. Siempre nos aseguramos de entregar antes de tu fecha límite. Los plazos específicos se discuten durante el proceso de cotización.',
+        "El tiempo de entrega depende de la complejidad y extensión de la tarea. Siempre nos aseguramos de entregar antes de tu fecha límite. Los plazos específicos se discuten durante el proceso de cotización.",
     },
     {
-      question: '¿Garantizan la originalidad del trabajo?',
+      question: "¿Garantizan la originalidad del trabajo?",
       answer:
-        'Absolutamente. Todo nuestro trabajo es original y pasa por verificaciones de plagio. Nos comprometemos a entregar contenido único y de alta calidad.',
+        "Absolutamente. Todo nuestro trabajo es original y pasa por verificaciones de plagio. Nos comprometemos a entregar contenido único y de alta calidad.",
     },
     {
-      question: '¿Ofrecen revisiones o correcciones?',
+      question: "¿Ofrecen revisiones o correcciones?",
       answer:
-        'Sí, ofrecemos revisiones gratuitas si es necesario. Nuestro objetivo es tu completa satisfacción con el trabajo entregado.',
+        "Sí, ofrecemos revisiones gratuitas si es necesario. Nuestro objetivo es tu completa satisfacción con el trabajo entregado.",
     },
     {
-      question: '¿Cómo se realiza el pago?',
+      question: "¿Cómo se realiza el pago?",
       answer:
-        'Una vez que aceptes la cotización, te proporcionaremos instrucciones detalladas para realizar el pago. Ofrecemos múltiples métodos de pago seguros para tu comodidad.',
+        "Una vez que aceptes la cotización, te proporcionaremos instrucciones detalladas para realizar el pago. Ofrecemos múltiples métodos de pago seguros para tu comodidad.",
     },
     {
-      question: '¿Qué pasa si no estoy satisfecho con el trabajo?',
+      question: "¿Qué pasa si no estoy satisfecho con el trabajo?",
       answer:
-        'Tu satisfacción es nuestra prioridad. Si no estás completamente satisfecho, trabajaremos contigo para hacer las revisiones necesarias sin costo adicional.',
+        "Tu satisfacción es nuestra prioridad. Si no estás completamente satisfecho, trabajaremos contigo para hacer las revisiones necesarias sin costo adicional.",
     },
     {
-      question: '¿Pueden manejar tareas urgentes?',
+      question: "¿Pueden manejar tareas urgentes?",
       answer:
-        'Sí, podemos manejar tareas con plazos ajustados. Sin embargo, te recomendamos que nos contactes lo antes posible para asegurar la disponibilidad y evitar cargos por urgencia.',
+        "Sí, podemos manejar tareas con plazos ajustados. Sin embargo, te recomendamos que nos contactes lo antes posible para asegurar la disponibilidad y evitar cargos por urgencia.",
     },
     {
-      question: '¿En qué materias o áreas ofrecen ayuda?',
+      question: "¿En qué materias o áreas ofrecen ayuda?",
       answer:
-        'Ofrecemos asistencia en una amplia gama de materias y disciplinas académicas. Esto incluye, pero no se limita a, matemáticas, ciencias, humanidades, negocios, ingeniería y más. Si tienes dudas sobre una materia específica, no dudes en preguntarnos.',
+        "Ofrecemos asistencia en una amplia gama de materias y disciplinas académicas. Esto incluye, pero no se limita a, matemáticas, ciencias, humanidades, negocios, ingeniería y más. Si tienes dudas sobre una materia específica, no dudes en preguntarnos.",
     },
   ];
-
 
   return (
     <PageTransition>
@@ -123,7 +119,6 @@ const Contact: React.FC = () => {
             </div>
           </div>
 
-
           <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-semibold mb-4 md:mb-6 text-indigo-800">
               ¿Listo para empezar?
@@ -163,7 +158,9 @@ const ContactItem: React.FC<{
   href?: string;
 }> = ({ icon, text, href }) => (
   <li className="flex items-center space-x-3 md:space-x-4">
-    <span className="text-indigo-500 bg-indigo-100 p-2 md:p-3 rounded-full flex-shrink-0">{icon}</span>
+    <span className="text-indigo-500 bg-indigo-100 p-2 md:p-3 rounded-full flex-shrink-0">
+      {icon}
+    </span>
     {href ? (
       <a
         href={href}
@@ -173,7 +170,9 @@ const ContactItem: React.FC<{
         <ExternalLink size={14} className="ml-1 flex-shrink-0" />
       </a>
     ) : (
-      <span className="text-base md:text-lg text-gray-700 break-words">{text}</span>
+      <span className="text-base md:text-lg text-gray-700 break-words">
+        {text}
+      </span>
     )}
   </li>
 );
@@ -189,14 +188,20 @@ const FAQItem: React.FC<{
       className="flex justify-between items-center w-full text-left"
       onClick={onClick}
     >
-      <span className="text-base md:text-lg font-semibold text-gray-800 pr-4">{question}</span>
+      <span className="text-base md:text-lg font-semibold text-gray-800 pr-4">
+        {question}
+      </span>
       {isOpen ? (
         <MinusCircle className="text-indigo-500 flex-shrink-0" size={20} />
       ) : (
         <PlusCircle className="text-indigo-500 flex-shrink-0" size={20} />
       )}
     </button>
-    {isOpen && <p className="mt-4 text-sm md:text-base text-gray-600 animate-fadeIn">{answer}</p>}
+    {isOpen && (
+      <p className="mt-4 text-sm md:text-base text-gray-600 animate-fadeIn">
+        {answer}
+      </p>
+    )}
   </div>
 );
 
