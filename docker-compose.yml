@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   app:
     build: .
@@ -6,8 +6,8 @@ services:
       - "3001"
     environment:
       - NODE_ENV=production
-      - VIRTUAL_HOST=tutoriasuniversitarias.com
-      - LETSENCRYPT_HOST=tutoriasuniversitarias.com
+      - VIRTUAL_HOST=tutoriasuniversitarias.com,*.tutoriasuniversitarias.com
+      - LETSENCRYPT_HOST=tutoriasuniversitarias.com,*.tutoriasuniversitarias.com
       - LETSENCRYPT_EMAIL=soporte.tutoriasuniversitarias@gmail.com
     env_file:
       - .env
