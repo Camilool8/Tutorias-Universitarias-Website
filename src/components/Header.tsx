@@ -80,7 +80,7 @@ const Header: React.FC = () => {
       <div
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        } bg-blue-600`}
+        } bg-gradient-to-r from-blue-600 to-purple-600`}
       >
         <nav className="flex flex-col items-center space-y-4 py-4">
           <NavLink
