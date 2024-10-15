@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
 import { fileURLToPath } from "url";
+import compression from "compression";
+import helmet from "helmet";
 
 dotenv.config();
 
@@ -16,6 +18,8 @@ const port = process.env.PORT || 3001;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.use(compression());
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(cors());
 

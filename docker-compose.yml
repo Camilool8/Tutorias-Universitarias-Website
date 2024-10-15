@@ -6,8 +6,8 @@ services:
       - "3001"
     environment:
       - NODE_ENV=production
-      - VIRTUAL_HOST=tutoriasuniversitarias.com,*.tutoriasuniversitarias.com
-      - LETSENCRYPT_HOST=tutoriasuniversitarias.com,*.tutoriasuniversitarias.com
+      - VIRTUAL_HOST=tutoriasuniversitarias.com,www.tutoriasuniversitarias.com
+      - LETSENCRYPT_HOST=tutoriasuniversitarias.com,www.tutoriasuniversitarias.com
       - LETSENCRYPT_EMAIL=soporte.tutoriasuniversitarias@gmail.com
     env_file:
       - .env
@@ -23,6 +23,9 @@ services:
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
+      - ./nginx-proxy-config:/etc/nginx/conf.d
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
     restart: always
 
   acme-companion:

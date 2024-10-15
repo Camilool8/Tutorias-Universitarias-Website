@@ -84,8 +84,10 @@ const Contact: React.FC = () => {
                 />
                 <ContactItem
                   icon={<Mail size={20} />}
-                  text="soporte.tutoriasuniversitarias@gmail.com"
-                  href="mailto:soporte.tutoriasuniversitarias@gmail.com"
+                  text={`soporte.tutoriasuniversitarias[at]gmail[dot]com`}
+                  href={`mailto:${atob(
+                    "c29wb3J0ZS50dXRvcmlhc3VuaXZlcnNpdGFyaWFzQGdtYWlsLmNvbQ=="
+                  )}`}
                 />
               </ul>
             </div>
