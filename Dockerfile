@@ -19,8 +19,9 @@ COPY --from=build /app/server ./server
 COPY package*.json ./
 COPY .env ./
 
-RUN npm ci --only=production
+RUN npm ci --only=production && npm install -g pm2
 
 EXPOSE 3001
 
-CMD ["node", "server/index.js"]
+# Use PM2 to run the server
+CMD ["pm2-runtime", "server/index.js"]
