@@ -61,7 +61,9 @@ const Footer: React.FC = () => {
             <h4 className="text-lg font-semibold mb-4">Contacto</h4>
             <ul className="space-y-2">
               <FooterLink
-                href="mailto:soporte.tutoriasuniversitarias@gmail.com"
+                href={`mailto:${atob(
+                  "c29wb3J0ZS50dXRvcmlhc3VuaXZlcnNpdGFyaWFzQGdtYWlsLmNvbQ=="
+                )}`}
                 icon={<Mail size={18} />}
                 text="soporte.tutoriasuniversitarias@gmail.com"
               />
