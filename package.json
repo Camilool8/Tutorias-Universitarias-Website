@@ -19,7 +19,6 @@
     "dotenv": "^16.4.5",
     "express": "^4.17.1",
     "framer-motion": "^11.11.7",
-    "helmet": "^8.0.0",
     "jsonwebtoken": "^8.5.1",
     "lucide-react": "^0.344.0",
     "path": "^0.12.7",
