@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Facebook,
   Instagram,
@@ -9,7 +9,7 @@ import {
   Briefcase,
   HelpCircle,
   BookOpen,
-} from 'lucide-react';
+} from "lucide-react";
 
 const Footer: React.FC = () => {
   return (
@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
                 width={40}
                 height={40}
               />
-              Tutorias Universitarias
+              Tutorías Universitarias
             </h3>
             <p className="text-gray-400">
               Haciendo la vida estudiantil más fácil y divertida desde 2019.
@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
           <p>
-            &copy; 2024 Tutorias Universitarias. Todos los derechos reservados.
+            &copy; 2024 Tutorías Universitarias. Todos los derechos reservados.
           </p>
         </div>
       </div>
