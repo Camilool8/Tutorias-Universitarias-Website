@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://tutoriasuniversitarias.com/</loc>
+    <loc>https://www.tutoriasuniversitarias.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://tutoriasuniversitarias.com/cotizar</loc>
+    <loc>https://www.tutoriasuniversitarias.com/cotizar</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tutoriasuniversitarias.com/about</loc>
+    <loc>https://www.tutoriasuniversitarias.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://tutoriasuniversitarias.com/services</loc>
+    <loc>https://www.tutoriasuniversitarias.com/services</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://tutoriasuniversitarias.com/contact</loc>
+    <loc>https://www.tutoriasuniversitarias.com/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
