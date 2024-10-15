@@ -18,7 +18,7 @@ function App() {
       <ScrollToTop>
         <div className="flex flex-col min-h-screen">
           <Header />
-          <main className="flex-grow">
+          <main className="flex-grow pt-16">
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/cotizar" element={<UploadForm />} />
