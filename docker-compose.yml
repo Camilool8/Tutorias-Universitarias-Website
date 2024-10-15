@@ -6,8 +6,8 @@ services:
       - "3001"
     environment:
       - NODE_ENV=production
-      - VIRTUAL_HOST=tutoriasuniversitarias.com,www.tutoriasuniversitarias.com
-      - LETSENCRYPT_HOST=tutoriasuniversitarias.com,www.tutoriasuniversitarias.com
+      - VIRTUAL_HOST=tutoriasuniversitarias.com,*.tutoriasuniversitarias.com
+      - LETSENCRYPT_HOST=tutoriasuniversitarias.com,*.tutoriasuniversitarias.com
       - LETSENCRYPT_EMAIL=soporte.tutoriasuniversitarias@gmail.com
     env_file:
       - .env
