@@ -26,6 +26,7 @@ services:
       - ./nginx-proxy-config:/etc/nginx/conf.d
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
+      - SKIP_DEFAULT_CONF=true
     restart: always
 
   acme-companion:
