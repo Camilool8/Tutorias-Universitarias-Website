@@ -2,11 +2,11 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorías Universitarias - Realizamos tareas y exámenes</title>
   <meta name="description"
-    content="Realizamos tareas de Matemática, Química, Física, Calculo, Geometría Analítica, Estadística, Ensayos, Tesis, Monográficos, Ensayos, Proyectos finales, entre otras actividades." />
+    content="Realizamos tareas y tutorías de Matemáticas, Química, Física, Calculo, Geometría Analítica, Estadística, Ensayos, Tesis, Monográficos, Ensayos, Proyectos finales, entre otras actividades universitarias." />
   <meta name="keywords"
     content="tareas, practicas, matemáticas, química, física, cálculo, derecho, programación, ensayos, exámen, tutor, tutoria, tutoría, tutorías universitarias, éxito académico, tutoría experta, ayuda universitaria, clases particulares" />
   <meta name="author" content="Tutorías Universitarias" />
@@ -59,9 +59,6 @@
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#2b5797" media="(prefers-color-scheme: dark)">
 
-  <!-- Preload critical assets -->
-  <link rel="preload" href="/images/og-tutorias-universitarias.webp" as="image">
-
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.tutoriasuniversitarias.com/" />
@@ -80,6 +77,16 @@
     content="Realizamos tareas de Matemática, Química, Física, Calculo, Geometría Analítica, Estadística, Ensayos, Tesis, Monográficos, Ensayos, Proyectos finales, entre otras actividades." />
   <meta name="twitter:image" content="https://www.tutoriasuniversitarias.com/images/og-tutorias-universitarias.webp" />
   <meta name="twitter:image:alt" content="Tutorías Universitarias - Imagen representativa" />
+
+  <!-- Google Tag Manager -->
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-TMRFDDPM');</script>
 
   <!-- Structured Data -->
   <script type="application/ld+json">
@@ -113,6 +120,11 @@
 </head>
 
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TMRFDDPM" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+
+  <!-- Main app -->
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
