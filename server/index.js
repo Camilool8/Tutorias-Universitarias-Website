@@ -268,12 +268,12 @@ app.get("/api/analytics", verifyToken, async (req, res) => {
   }
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/index.html"));
-});
-
 app.use((req, res, next) => {
   res.status(404).sendFile(path.join(__dirname, "../dist/index.html"));
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
 });
 
 app.listen(port, () => {
