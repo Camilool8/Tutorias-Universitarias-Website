@@ -11,10 +11,12 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import PageTransition from "../components/PageTransition";
+import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
 const AboutUs: React.FC = () => {
   const [expandedValue, setExpandedValue] = useState<string | null>(null);
-  const whatsappNumber = "34608837272";
+  const { location: geoLocation } = useGeolocation();
+  const whatsappNumber = getWhatsAppNumber(geoLocation?.continent_code);
   const whatsappMessage = encodeURIComponent("¡Hola!");
 
   const toggleExpand = (value: string) => {

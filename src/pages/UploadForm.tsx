@@ -7,20 +7,23 @@ import {
   Clock,
   Mail,
   Send,
-  AlertCircle,
-  FileText
+  FileText,
+  Phone,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import PageTransition from "../components/PageTransition";
+import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
 const UploadForm: React.FC = () => {
   const location = useLocation();
+  const { location: geoLocation } = useGeolocation();
   const [formData, setFormData] = useState({
     subject: "",
     country: "España",
     dueDate: "",
     dueTime: "",
     email: "",
+    phoneNumber: "",
   });
   const [countries, setCountries] = useState<string[]>([]);
 
@@ -82,7 +85,7 @@ const UploadForm: React.FC = () => {
 
       const data = await response.json();
 
-      const phoneNumber = "34608837272";
+      const phoneNumber = getWhatsAppNumber(geoLocation?.continent_code);
       const message = encodeURIComponent(`
 *Cotización ${data.id} 👛*
 
@@ -90,6 +93,7 @@ const UploadForm: React.FC = () => {
 *🌎 País:* ${formData.country}
 *📆 Fecha Entrega:* ${formData.dueDate} ${formData.dueTime}
 *📧 Correo Electrónico:* ${formData.email}
+*📞 Teléfono:* ${formData.phoneNumber}
 
       `);
 
@@ -114,7 +118,8 @@ const UploadForm: React.FC = () => {
             Cotiza Ahora
           </h1>
           <p className="text-xl sm:text-2xl text-center mb-12 text-gray-600">
-            Completa el formulario con los detalles de tu tarea para recibir una cotización personalizada.
+            Completa el formulario con los detalles de tu tarea para recibir una
+            cotización personalizada.
           </p>
           <form
             onSubmit={handleSubmit}
@@ -168,6 +173,15 @@ const UploadForm: React.FC = () => {
                 onChange={handleChange}
                 placeholder="tu@email.com"
               />
+              <FormField
+                icon={<Phone size={18} />}
+                label="Teléfono"
+                name="phoneNumber"
+                type="tel"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="+34 608 83 72 72"
+              />
             </div>
             <div className="mt-8 space-y-4">
               <button
@@ -177,11 +191,11 @@ const UploadForm: React.FC = () => {
                 <Send className="mr-2" size={18} />
                 Enviar y Recibir Cotización
               </button>
-              <InfoBox 
+              <InfoBox
                 icon={<FaWhatsapp size={16} className="text-green-500" />}
                 text="Te contactaremos por WhatsApp con tu cotización personalizada."
               />
-              <InfoBox 
+              <InfoBox
                 icon={<FileText size={16} />}
                 text="Detalles adicionales o documentos podrán ser enviados por WhatsApp posteriormente."
               />

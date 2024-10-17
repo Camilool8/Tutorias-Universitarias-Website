@@ -7,6 +7,7 @@ interface Submission {
   id: string;
   subject: string;
   email: string;
+  phoneNumber: string;
   status: string;
   submittedAt: string;
   price: number;
@@ -179,7 +180,7 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ setError }) => {
                 <FileText size={18} />
               </button>
             </div>
-            <p className="text-sm text-gray-600">{submission.email}</p>
+            <p className="text-sm text-gray-600">{submission.phoneNumber}</p>
             <div className="flex justify-between items-center">
               <select
                 value={submission.status}
@@ -227,7 +228,7 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ setError }) => {
                 Asunto
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Correo
+                Teléfono
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Estado
@@ -253,7 +254,7 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ setError }) => {
                   {submission.subject}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {submission.email}
+                  {submission.phoneNumber}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select

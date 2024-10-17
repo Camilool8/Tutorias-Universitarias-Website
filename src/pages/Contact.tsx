@@ -10,10 +10,12 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
+import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
 const Contact: React.FC = () => {
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
-  const whatsappNumber = "34608837272";
+  const { location: geoLocation } = useGeolocation();
+  const whatsappNumber = getWhatsAppNumber(geoLocation?.continent_code);
   const whatsappMessage = encodeURIComponent("¡Hola!");
 
   const toggleQuestion = (index: number) => {

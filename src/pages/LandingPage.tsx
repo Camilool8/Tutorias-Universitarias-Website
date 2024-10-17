@@ -13,9 +13,11 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { FlagIcon } from "react-flag-kit";
+import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
 const LandingPage: React.FC = () => {
-  const whatsappNumber = "34608837272";
+  const { location: geoLocation } = useGeolocation();
+  const whatsappNumber = getWhatsAppNumber(geoLocation?.continent_code);
   const whatsappMessage = encodeURIComponent("¡Hola!");
 
   return (

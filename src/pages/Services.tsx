@@ -21,6 +21,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
 Modal.setAppElement("#root");
 
@@ -30,7 +31,8 @@ const Services: React.FC = () => {
   const [selectedService, setSelectedService] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const navigate = useNavigate();
-  const whatsappNumber = "34608837272";
+  const { location: geoLocation } = useGeolocation();
+  const whatsappNumber = getWhatsAppNumber(geoLocation?.continent_code);
   const whatsappMessage = encodeURIComponent("¡Hola!");
 
   const customStyles = {
