@@ -14,6 +14,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { FlagIcon } from "react-flag-kit";
 import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
+import UniversitySlider from "../components/UniversitySlider";
 
 const LandingPage: React.FC = () => {
   const { location: geoLocation } = useGeolocation();
@@ -123,6 +124,9 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* University Slider */}
+      <UniversitySlider />
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
