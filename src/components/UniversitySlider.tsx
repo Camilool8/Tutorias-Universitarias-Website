@@ -30,7 +30,7 @@ const UniversitySlider = () => {
     {
       name: "INTEC",
       fullName: "Instituto Tecnológico de Santo Domingo",
-      logo: "https://scontent.fsdq1-1.fna.fbcdn.net/v/t39.30808-6/387813700_704286818401470_2509898319099575974_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=3X8kMBCNA64Q7kNvgGvA3I_&_nc_zt=23&_nc_ht=scontent.fsdq1-1.fna&_nc_gid=AB8SJlZcM7F2Isd39EExS5N&oh=00_AYAquKyeh7RE8kCfjzf4W3JIbBnew22i9nrgc5b3_xotZw&oe=672B64A2",
+      logo: "https://www.access-caribbean.eu/sites/default/files/styles/large/public/2020-02/12%20logo-intec.png?itok=kv9g9nX5",
       country: "República Dominicana",
       url: "https://www.intec.edu.do/",
     },
@@ -65,7 +65,7 @@ const UniversitySlider = () => {
     {
       name: "UCSD",
       fullName: "Universidad Católica Santo Domingo",
-      logo: "https://scontent.fsdq1-2.fna.fbcdn.net/v/t39.30808-6/412980139_400947788952827_3661761713025413233_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=MymF1osTk0gQ7kNvgE_IRD0&_nc_zt=23&_nc_ht=scontent.fsdq1-2.fna&_nc_gid=AiCR9Md2narLZKc7GsvdWq0&oh=00_AYA2j9gvzAWw_H-mTCv8d4e0s8WuulvkJASy8VFaUlnrwg&oe=672B879D",
+      logo: "https://carrera-universitaria.com/republica-dominicana/logos/ucsd-400.jpg",
       country: "República Dominicana",
       url: "https://www.ucsd.edu.do/",
     },
@@ -261,7 +261,7 @@ const UniversitySlider = () => {
         {/* Título */}
         <div className="mb-12 md:mb-20 px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-blue-900">
-            Universidades que Confían en Nosotros
+            Presencia en las siguientes Instituciones Académicas
           </h2>
         </div>
 
