@@ -77,6 +77,7 @@ const Header: React.FC = () => {
           </div>
           <button
             id="toggle-menu"
+            aria-label="Toggle menu"
             className="lg:hidden text-white focus:outline-none"
             onClick={toggleMenu}
           >
