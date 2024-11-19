@@ -195,7 +195,7 @@ const TurnitinSection = () => {
 
                   <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                     <Link
-                      to="/cotizar&activeTab=turnitin"
+                      to="/cotizar"
                       className="inline-flex items-center justify-center px-8 py-4 bg-yellow-400 text-blue-900 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 transform hover:scale-105"
                     >
                       <Calculator className="mr-2" size={20} />
