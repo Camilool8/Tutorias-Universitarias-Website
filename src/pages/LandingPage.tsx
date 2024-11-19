@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
-import UniversitySlider from "../components/UniversitySlider";
+const UniversitySlider = lazy(() => import("../components/UniversitySlider"));
 
 // Datos para las features
 const features = [
@@ -130,8 +130,11 @@ const LandingPage = () => {
           {/* Imagen de fondo */}
           <img
             src="/images/hero-image.webp"
-            alt=""
+            alt="imagen de fondo"
             className="h-full w-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
         </div>
 
@@ -218,90 +221,101 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="container mx-auto px-4 relative">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              ¿Por qué elegir{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                Tutorías Universitarias
-              </span>
-              ?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Transformamos tu experiencia académica con soluciones
-              personalizadas y resultados excepcionales
-            </p>
+      <Suspense
+        fallback={
+          <div className="fixed inset-0 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p className="mt-4 text-indigo-800 font-medium">Cargando...</p>
+            </div>
+          </div>
+        }
+      >
+        <section className="py-24 bg-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+          <div className="container mx-auto px-4 relative">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                ¿Por qué elegir{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                  Tutorías Universitarias
+                </span>
+                ?
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Transformamos tu experiencia académica con soluciones
+                personalizadas y resultados excepcionales
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((feature, index) => (
+                <FeatureCard key={index} {...feature} delay={index * 0.1} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Proceso Simple y Efectivo
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                En tres pasos sencillos, transformamos tus desafíos en éxitos
+                académicos
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+              {/* Línea conectora para desktop */}
+              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 transform -translate-y-1/2" />
+
+              {steps.map((step, index) => (
+                <StepCard
+                  key={index}
+                  {...step}
+                  number={index + 1}
+                  delay={index * 0.2}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* University Slider */}
+        <UniversitySlider />
+
+        {/* Testimonials Section */}
+        <section className="py-24 bg-gradient-to-br from-blue-900 to-purple-900 relative overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <FeatureCard key={index} {...feature} delay={index * 0.1} />
-            ))}
+          <div className="container mx-auto px-4 relative">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                Voces de Éxito
+              </h2>
+              <p className="text-xl text-gray-200 max-w-2xl mx-auto">
+                Descubre lo que nuestros estudiantes dicen sobre su experiencia
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <TestimonialCard
+                  key={index}
+                  {...testimonial}
+                  delay={index * 0.2}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Proceso Simple y Efectivo
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              En tres pasos sencillos, transformamos tus desafíos en éxitos
-              académicos
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Línea conectora para desktop */}
-            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 transform -translate-y-1/2" />
-
-            {steps.map((step, index) => (
-              <StepCard
-                key={index}
-                {...step}
-                number={index + 1}
-                delay={index * 0.2}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* University Slider */}
-      <UniversitySlider />
-
-      {/* Testimonials Section */}
-      <section className="py-24 bg-gradient-to-br from-blue-900 to-purple-900 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]" />
-        </div>
-
-        <div className="container mx-auto px-4 relative">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Voces de Éxito
-            </h2>
-            <p className="text-xl text-gray-200 max-w-2xl mx-auto">
-              Descubre lo que nuestros estudiantes dicen sobre su experiencia
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard
-                key={index}
-                {...testimonial}
-                delay={index * 0.2}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </Suspense>
 
       {/* Final CTA Section */}
       <section className="py-24 bg-white relative overflow-hidden">

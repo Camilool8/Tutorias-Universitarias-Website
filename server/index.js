@@ -40,8 +40,27 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../dist")));
+const setCustomCacheControl = (res, path) => {
+  const hashRegex = /\.[0-9a-f]{8}\./;
+
+  if (
+    path.endsWith(".webp") ||
+    path.endsWith(".png") ||
+    path.endsWith(".jpg")
+  ) {
+    res.setHeader("Cache-Control", "public, max-age=604800");
+  } else if (hashRegex.test(path)) {
+    res.setHeader("Cache-Control", "public, max-age=31536000");
+  } else {
+    res.setHeader("Cache-Control", "public, max-age=86400");
+  }
+};
+app.use(compression());
+app.use(
+  express.static(path.join(__dirname, "../dist"), {
+    setHeaders: setCustomCacheControl,
+  })
+);
 
 // Admin routes
 app.post("/api/login", async (req, res) => {

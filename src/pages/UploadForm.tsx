@@ -270,7 +270,7 @@ const UploadForm = () => {
                               className="p-4 rounded-lg font-medium bg-indigo-50 text-indigo-600 
                            hover:bg-indigo-100 transition-all duration-300"
                             >
-                              Más
+                              +
                             </button>
                           </div>
                         </>
