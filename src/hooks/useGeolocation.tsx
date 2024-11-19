@@ -9,7 +9,9 @@ const useGeolocation = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await axios.get("https://ipapi.co/json/");
+        const response = await axios.get(
+          "https://api.allorigins.win/raw?url=https://ipapi.co/json/"
+        );
         setLocation(response.data);
       } catch (err) {
         setError(err);
@@ -28,10 +30,10 @@ const getWhatsAppNumber = (continentCode: string) => {
   switch (continentCode) {
     case "NA":
     case "SA":
-      return "18492701295"; // Number for Americas
+      return "18492701295";
     case "EU":
     default:
-      return "34608837272"; // Number for Europe and default for all other locations
+      return "34608837272";
   }
 };
 

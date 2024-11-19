@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, BarChart2, AlertCircle } from 'lucide-react';
-import SubmissionsList from '../components/SubmissionsList';
-import Analytics from '../components/Analytics';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, FileText, BarChart2, AlertCircle } from "lucide-react";
+import SubmissionsList from "../components/SubmissionsList";
+import Analytics from "../components/Analytics";
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('solicitudes');
-  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState("solicitudes");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem("adminToken");
     if (!token) {
-      navigate('/admin/login');
+      navigate("/admin/login");
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    navigate('/admin/login');
+    localStorage.removeItem("adminToken");
+    navigate("/admin/login");
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 mt-8">
       <nav className="bg-indigo-600 text-white p-4 shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Panel de Administración</h1>
@@ -44,20 +44,20 @@ const AdminDashboard: React.FC = () => {
         )}
         <div className="flex mb-6 space-x-4">
           <TabButton
-            active={activeTab === 'solicitudes'}
-            onClick={() => setActiveTab('solicitudes')}
+            active={activeTab === "solicitudes"}
+            onClick={() => setActiveTab("solicitudes")}
             icon={<FileText size={18} />}
             text="Solicitudes"
           />
           <TabButton
-            active={activeTab === 'analiticas'}
-            onClick={() => setActiveTab('analiticas')}
+            active={activeTab === "analiticas"}
+            onClick={() => setActiveTab("analiticas")}
             icon={<BarChart2 size={18} />}
             text="Analíticas"
           />
         </div>
-        {activeTab === 'solicitudes' && <SubmissionsList setError={setError} />}
-        {activeTab === 'analiticas' && <Analytics setError={setError} />}
+        {activeTab === "solicitudes" && <SubmissionsList setError={setError} />}
+        {activeTab === "analiticas" && <Analytics setError={setError} />}
       </div>
     </div>
   );
@@ -72,8 +72,8 @@ const TabButton: React.FC<{
   <button
     className={`flex items-center px-4 py-2 rounded-lg transition duration-300 ease-in-out ${
       active
-        ? 'bg-indigo-600 text-white'
-        : 'bg-white text-indigo-600 hover:bg-indigo-100'
+        ? "bg-indigo-600 text-white"
+        : "bg-white text-indigo-600 hover:bg-indigo-100"
     }`}
     onClick={onClick}
   >

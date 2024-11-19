@@ -9,6 +9,7 @@ import {
   Briefcase,
   HelpCircle,
   BookOpen,
+  Bookmark,
 } from "lucide-react";
 
 const Footer: React.FC = () => {
@@ -49,6 +50,11 @@ const Footer: React.FC = () => {
                 href="/services"
                 icon={<Briefcase size={18} />}
                 text="Servicios"
+              />
+              <FooterLink
+                href="/turnitin"
+                icon={<Bookmark size={18} />}
+                text="Turnitin"
               />
               <FooterLink
                 href="/contact"

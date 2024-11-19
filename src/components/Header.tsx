@@ -8,6 +8,7 @@ import {
   Info,
   Briefcase,
   HelpCircle,
+  Bookmark,
 } from "lucide-react";
 
 const Header: React.FC = () => {
@@ -58,6 +59,11 @@ const Header: React.FC = () => {
               icon={<Briefcase size={18} />}
               text="Servicios"
             />
+            <NavLink
+              to="/turnitin"
+              icon={<Bookmark size={18} />}
+              text="Turnitin"
+            />
             <NavLink to="/contact" icon={<HelpCircle size={18} />} text="FAQ" />
           </nav>
           <div className="hidden lg:block">
@@ -99,6 +105,12 @@ const Header: React.FC = () => {
             to="/services"
             icon={<Briefcase size={18} />}
             text="Servicios"
+            onClick={toggleMenu}
+          />
+          <NavLink
+            to="/turnitin"
+            icon={<Bookmark size={18} />}
+            text="Turnitin"
             onClick={toggleMenu}
           />
           <NavLink

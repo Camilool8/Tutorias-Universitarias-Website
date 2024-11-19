@@ -260,7 +260,7 @@ const UniversitySlider = () => {
       <div className="relative w-full max-w-[1800px] mx-auto">
         {/* Título */}
         <div className="mb-12 md:mb-20 px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-blue-900">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Presencia en las siguientes Instituciones Académicas
           </h2>
         </div>
