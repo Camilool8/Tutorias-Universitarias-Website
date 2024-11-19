@@ -181,6 +181,7 @@ const LandingPage = () => {
               </Link>
 
               <a
+                aria-label="Contactar por WhatsApp"
                 href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -344,6 +345,7 @@ const LandingPage = () => {
                 <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
               </Link>
               <a
+                aria-label="Contactar por WhatsApp"
                 href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"

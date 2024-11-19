@@ -84,12 +84,14 @@ const Footer: React.FC = () => {
             <h4 className="text-lg font-semibold mb-4">Síguenos</h4>
             <div className="flex space-x-4">
               <a
+                about="Facebook"
                 href="https://www.facebook.com/profile.php?id=100088640089400&mibextid=LQQJ4d"
                 className="hover:text-blue-400 transition-colors"
               >
                 <Facebook size={24} />
               </a>
               <a
+                aria-label="Instagram"
                 href="https://www.instagram.com/tutorias_universitarias/"
                 className="hover:text-blue-400 transition-colors"
               >
@@ -115,6 +117,7 @@ const FooterLink: React.FC<{
 }> = ({ href, icon, text }) => (
   <li>
     <a
+      aria-label={text}
       href={href}
       className="flex items-center hover:text-blue-400 transition-colors"
     >

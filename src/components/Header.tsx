@@ -76,6 +76,7 @@ const Header: React.FC = () => {
             </Link>
           </div>
           <button
+            id="toggle-menu"
             className="lg:hidden text-white focus:outline-none"
             onClick={toggleMenu}
           >
