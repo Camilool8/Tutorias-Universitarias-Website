@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import LazyImage from "./LazyImage";
 
 const UniversitySlider = () => {
   const sliderRef = useRef(null);
@@ -258,14 +259,12 @@ const UniversitySlider = () => {
   return (
     <section className="relative w-full overflow-hidden bg-white py-16 md:py-28">
       <div className="relative w-full max-w-[1800px] mx-auto">
-        {/* Título */}
         <div className="mb-12 md:mb-20 px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Presencia en las siguientes Instituciones Académicas
           </h2>
         </div>
 
-        {/* Slider Container */}
         <div className="relative w-full">
           <div
             ref={sliderRef}
@@ -297,12 +296,14 @@ const UniversitySlider = () => {
                       className="absolute inset-0 rounded-xl md:rounded-2xl opacity-0 
                                 group-hover:opacity-20 transition-opacity duration-500"
                     />
-                    <img
+                    <LazyImage
                       src={uni.logo}
                       alt={uni.fullName}
                       className="relative w-full h-full object-contain
                                transition-all duration-500
                                group-hover:brightness-110 group-hover:contrast-110"
+                      threshold={0.1}
+                      placeholderClassName="rounded-xl md:rounded-2xl"
                       draggable="false"
                     />
                   </div>
