@@ -368,6 +368,111 @@ app.get("/api/email-service/status", verifyToken, async (req, res) => {
   }
 });
 
+// Email Templates Routes
+app.get("/api/email-templates", verifyToken, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("email_templates")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching email templates:", error);
+    res.status(500).json({ error: "Error al obtener las plantillas" });
+  }
+});
+
+app.post("/api/email-templates", verifyToken, async (req, res) => {
+  try {
+    const { name, description, subject, html_content } = req.body;
+
+    const { data, error } = await supabase
+      .from("email_templates")
+      .insert([
+        {
+          name,
+          description,
+          subject,
+          html_content,
+        },
+      ])
+      .select();
+
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (error) {
+    console.error("Error creating email template:", error);
+    res.status(500).json({ error: "Error al crear la plantilla" });
+  }
+});
+
+app.put("/api/email-templates/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, subject, html_content } = req.body;
+
+    const { data, error } = await supabase
+      .from("email_templates")
+      .update({
+        name,
+        description,
+        subject,
+        html_content,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select();
+
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (error) {
+    console.error("Error updating email template:", error);
+    res.status(500).json({ error: "Error al actualizar la plantilla" });
+  }
+});
+
+app.delete("/api/email-templates/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from("email_templates")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+    res.json({ message: "Plantilla eliminada correctamente" });
+  } catch (error) {
+    console.error("Error deleting email template:", error);
+    res.status(500).json({ error: "Error al eliminar la plantilla" });
+  }
+});
+
+// Route para obtener una plantilla específica
+app.get("/api/email-templates/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("email_templates")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+    if (!data) {
+      return res.status(404).json({ error: "Plantilla no encontrada" });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching email template:", error);
+    res.status(500).json({ error: "Error al obtener la plantilla" });
+  }
+});
+
 // Lead routes
 
 app.post("/api/capture-lead", async (req, res) => {

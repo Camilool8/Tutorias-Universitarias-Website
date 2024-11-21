@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Calculator,
@@ -14,23 +14,49 @@ import {
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isMenuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (isMenuOpen && event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setIsScrolled(scrollPosition > 0);
     };
 
+    // Agregar event listeners
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
     window.addEventListener("scroll", handleScroll);
 
+    // Limpieza de event listeners
     return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscKey);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [isMenuOpen]); // Solo se re-ejecuta cuando cambia isMenuOpen
 
   return (
     <header
@@ -76,8 +102,10 @@ const Header: React.FC = () => {
             </Link>
           </div>
           <button
+            ref={buttonRef}
             id="toggle-menu"
-            aria-label="Toggle menu"
+            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isMenuOpen}
             className="lg:hidden text-white focus:outline-none"
             onClick={toggleMenu}
           >
@@ -86,6 +114,7 @@ const Header: React.FC = () => {
         </div>
       </div>
       <div
+        ref={menuRef}
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         } bg-gradient-to-r from-blue-600 to-purple-600`}
@@ -95,36 +124,36 @@ const Header: React.FC = () => {
             to="/"
             icon={<Home size={18} />}
             text="Inicio"
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
           />
           <NavLink
             to="/about"
             icon={<Info size={18} />}
             text="Sobre Nosotros"
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
           />
           <NavLink
             to="/services"
             icon={<Briefcase size={18} />}
             text="Servicios"
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
           />
           <NavLink
             to="/turnitin"
             icon={<Bookmark size={18} />}
             text="Turnitin"
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
           />
           <NavLink
             to="/contact"
             icon={<HelpCircle size={18} />}
             text="FAQ"
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
           />
           <Link
             to="/cotizar"
             className="flex items-center space-x-1 bg-yellow-400 text-blue-800 px-4 py-2 rounded-full hover:bg-yellow-300 transition-colors"
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
           >
             <Calculator size={18} />
             <span>Cotiza Con Nosotros</span>

@@ -4,7 +4,6 @@ import {
   Book,
   Globe,
   Calendar,
-  Clock,
   Mail,
   Send,
   FileText,
@@ -31,7 +30,6 @@ const UploadForm = () => {
     subject: "",
     country: "España",
     dueDate: "",
-    dueTime: "",
     email: "",
     phoneNumber: "",
   });
@@ -138,7 +136,7 @@ const UploadForm = () => {
 
 *📚 Servicio:* ${formData.subject}
 *🌎 País:* ${formData.country}
-*📆 Fecha Entrega:* ${formData.dueDate} ${formData.dueTime}
+*📆 Fecha Entrega:* ${formData.dueDate}
 *📧 Correo:* ${formData.email}
 *📞 Teléfono:* ${formData.phoneNumber}
 *💰 Costo:* USD$${parseInt(docCount) * 20} (USD$20 por documento)
@@ -149,7 +147,7 @@ const UploadForm = () => {
 
 *📚 Servicio:* ${formData.subject}
 *🌎 País:* ${formData.country}
-*📆 Fecha Entrega:* ${formData.dueDate} ${formData.dueTime}
+*📆 Fecha Entrega:* ${formData.dueDate}
 *📧 Correo:* ${formData.email}
 *📞 Teléfono:* ${formData.phoneNumber}
         `);
@@ -333,24 +331,14 @@ const UploadForm = () => {
                     }))}
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      label="Fecha de Entrega"
-                      name="dueDate"
-                      type="date"
-                      value={formData.dueDate}
-                      onChange={handleChange}
-                      icon={<Calendar />}
-                    />
-                    <FormField
-                      label="Hora de Entrega"
-                      name="dueTime"
-                      type="time"
-                      value={formData.dueTime}
-                      onChange={handleChange}
-                      icon={<Clock />}
-                    />
-                  </div>
+                  <FormField
+                    label="Fecha de Entrega"
+                    name="dueDate"
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={handleChange}
+                    icon={<Calendar />}
+                  />
 
                   <FormField
                     label="Correo Electrónico"

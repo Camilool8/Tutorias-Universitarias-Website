@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Send,
 } from "lucide-react";
+import _ from "lodash";
 import { AnimatePresence, motion } from "framer-motion";
 import BulkEmailSender from "./BulkEmailSender";
 
@@ -49,6 +50,31 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
   };
+
+  const [debouncedUpdateNotes] = useState(() =>
+    _.debounce(async (id: string, notes: string) => {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(`/api/leads/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ notes }),
+        });
+
+        if (!response.ok) throw new Error("Error al actualizar las notas");
+
+        setLeads((prevLeads) =>
+          prevLeads.map((lead) => (lead.id === id ? { ...lead, notes } : lead))
+        );
+        showFeedback("success", "Notas actualizadas correctamente");
+      } catch (error) {
+        showFeedback("error", "Error al actualizar las notas");
+      }
+    }, 1000)
+  );
 
   useEffect(() => {
     fetchLeads();
@@ -98,27 +124,13 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
     }
   };
 
-  const handleNotesChange = async (id: string, notes: string) => {
-    try {
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch(`/api/leads/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ notes }),
-      });
-
-      if (!response.ok) throw new Error("Error al actualizar las notas");
-
-      setLeads(
-        leads.map((lead) => (lead.id === id ? { ...lead, notes } : lead))
-      );
-      showFeedback("success", "Notas actualizadas correctamente");
-    } catch (error) {
-      showFeedback("error", "Error al actualizar las notas");
-    }
+  const handleNotesChange = (id: string, notes: string) => {
+    // Actualiza el estado local inmediatamente para UX fluida
+    setLeads((prevLeads) =>
+      prevLeads.map((lead) => (lead.id === id ? { ...lead, notes } : lead))
+    );
+    // Debounce la llamada a la API
+    debouncedUpdateNotes(id, notes);
   };
 
   const filteredLeads = leads
@@ -142,7 +154,12 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
   }
 
   // Filtrar leads pendientes para el envío masivo
-  const pendingLeads = leads.filter((lead) => lead.status === "pending");
+  const allgoodLeads = leads.filter(
+    (lead) =>
+      lead.status === "pending" ||
+      lead.status === "contacted" ||
+      lead.status === "converted"
+  );
 
   // Render del botón y modal de envío masivo
   const renderBulkEmailButton = () => (
@@ -151,7 +168,7 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
       animate={{ opacity: 1, scale: 1 }}
       className="ml-2"
     >
-      {pendingLeads.length > 0 && (
+      {allgoodLeads.length > 0 && (
         <button
           onClick={() => setShowBulkEmailSender(true)}
           className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg
@@ -165,7 +182,7 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
             className="inline-flex items-center justify-center w-6 h-6 ml-2 text-xs 
                          bg-white text-indigo-600 rounded-full"
           >
-            {pendingLeads.length}
+            {allgoodLeads.length}
           </span>
         </button>
       )}
@@ -201,7 +218,7 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
       {showBulkEmailSender && (
         <BulkEmailSender
           onClose={() => setShowBulkEmailSender(false)}
-          pendingLeads={pendingLeads}
+          pendingLeads={leads}
           onLeadsUpdated={fetchLeads}
           setError={setError}
         />

@@ -1,19 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Send,
-  X,
   Code,
   Eye,
   Mail,
   Loader,
-  CheckCircle,
-  AlertTriangle,
+  File,
+  Save,
+  Filter,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { EmailTemplate } from "../types/email";
+import { Modal } from "./shared/Modal";
+import EmailTemplateGallery from "./EmailTemplateGallery";
+import EmailTemplateForm from "./EmailTemplateForm";
+
+interface Lead {
+  id: string;
+  email: string;
+  status: string;
+}
 
 interface BulkEmailSenderProps {
   onClose: () => void;
-  pendingLeads: Array<{ id: string; email: string }>;
+  pendingLeads: Lead[];
   onLeadsUpdated: () => void;
   setError: (error: string) => void;
 }
@@ -24,6 +34,7 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
   onLeadsUpdated,
   setError,
 }) => {
+  // Estados del formulario
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [isHtmlMode, setIsHtmlMode] = useState(false);
@@ -35,16 +46,90 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
     message: string;
   } | null>(null);
 
+  // Estados para el filtrado
+  const [sendMode, setSendMode] = useState<
+    "pending" | "contacted" | "converted" | "not_interested"
+  >("pending");
+
+  // Plantillas y modales
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<EmailTemplate | null>(null);
+
+  const handleTemplateSelect = (template: EmailTemplate) => {
+    setSubject(template.subject.trim());
+    setContent(template.html_content.trim());
+    setIsHtmlMode(true);
+    setShowTemplateGallery(false);
+    setSelectedTemplate(template);
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!content.trim() || !subject.trim()) {
+      setError("Debes tener un asunto y contenido para crear una plantilla");
+      return;
+    }
+
+    setSelectedTemplate({
+      name: "",
+      description: "",
+      subject,
+      html_content: content,
+    });
+    setShowTemplateForm(true);
+  };
+
+  const handleTemplateFormSuccess = () => {
+    setShowTemplateForm(false);
+    setSelectedTemplate(null);
+  };
+
+  // Calcular leads filtrados usando useMemo para optimizar rendimiento
+  const filteredLeads = useMemo(() => {
+    if (sendMode === "pending") {
+      return pendingLeads.filter((lead) => lead.status === "pending");
+    }
+
+    if (sendMode === "contacted") {
+      return pendingLeads.filter((lead) => lead.status === "contacted");
+    }
+
+    if (sendMode === "converted") {
+      return pendingLeads.filter((lead) => lead.status === "converted");
+    }
+
+    return [];
+  }, [pendingLeads, sendMode]);
+
   const showFeedback = (type: string, message: string) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const handleSendEmails = async () => {
-    if (!subject.trim() || !content.trim()) {
-      showFeedback("error", "Por favor completa todos los campos");
-      return;
+  const validateEmailForm = (): boolean => {
+    const errors: string[] = [];
+
+    if (!subject?.trim()) {
+      errors.push("El asunto es requerido");
     }
+    if (!content?.trim()) {
+      errors.push("El contenido es requerido");
+    }
+    if (filteredLeads.length === 0) {
+      errors.push("No hay destinatarios seleccionados");
+    }
+
+    if (errors.length > 0) {
+      setError(errors.join(", "));
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSendEmails = async () => {
+    if (!validateEmailForm()) return;
 
     setIsSending(true);
     let successCount = 0;
@@ -52,52 +137,72 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
     try {
       const token = localStorage.getItem("adminToken");
 
-      for (let i = 0; i < pendingLeads.length; i++) {
-        const lead = pendingLeads[i];
+      for (let i = 0; i < filteredLeads.length; i++) {
+        const lead = filteredLeads[i];
 
-        // Enviar el correo
-        const emailResponse = await fetch("/api/send-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            to: lead.email,
-            subject,
-            content,
-            isHtml: isHtmlMode,
-          }),
-        });
-
-        if (emailResponse.ok) {
-          // Actualizar el estado del lead a 'contacted'
-          const updateResponse = await fetch(`/api/leads/${lead.id}`, {
-            method: "PATCH",
+        try {
+          // Enviar el correo
+          const emailResponse = await fetch("/api/send-email", {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              status: "contacted",
-              last_contacted: new Date().toISOString(),
+              to: lead.email,
+              subject,
+              content,
+              isHtml: isHtmlMode,
             }),
           });
 
-          if (updateResponse.ok) {
+          if (emailResponse.ok) {
             successCount++;
+            // Actualizar el estado del lead
+            await fetch(`/api/leads/${lead.id}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                status: "contacted",
+                last_contacted: new Date().toISOString(),
+              }),
+            });
           }
-        }
 
-        // Actualizar el progreso
-        setProgress(((i + 1) / pendingLeads.length) * 100);
+          // Actualizar el progreso
+          const newProgress = ((i + 1) / filteredLeads.length) * 100;
+          setProgress(newProgress);
+        } catch (error) {
+          console.error(`Error sending email to ${lead.email}:`, error);
+        }
       }
 
-      showFeedback("success", `${successCount} correos enviados exitosamente`);
+      // Mostrar feedback final
+      if (successCount === filteredLeads.length) {
+        showFeedback(
+          "success",
+          `Se enviaron ${successCount} correos exitosamente`
+        );
+      } else if (successCount > 0) {
+        showFeedback(
+          "warning",
+          `Se enviaron ${successCount} de ${filteredLeads.length} correos`
+        );
+      } else {
+        showFeedback("error", "No se pudo enviar ningún correo");
+      }
+
       onLeadsUpdated();
       setTimeout(onClose, 2000);
-    } catch (error) {
-      setError("Error al enviar los correos. Por favor, intente de nuevo.");
+    } catch (error: unknown) {
+      showFeedback(
+        "error",
+        "Error al enviar los correos. Por favor, intente de nuevo. Detalles: " +
+          (error as Error).message
+      );
     } finally {
       setIsSending(false);
       setProgress(0);
@@ -105,105 +210,151 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-2xl font-bold text-gray-800">
-            Enviar Correo Masivo
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
-          >
-            <X size={24} />
-          </button>
+    <Modal title="Enviar Correo Masivo" onClose={onClose}>
+      {/* Feedback */}
+      {feedback && (
+        <div
+          className={`mb-4 p-3 rounded-lg ${
+            feedback.type === "success"
+              ? "bg-green-100 text-green-800"
+              : feedback.type === "warning"
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {feedback.message}
         </div>
+      )}
 
-        {/* Feedback Message */}
-        <AnimatePresence>
-          {feedback && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={`mb-4 p-4 rounded-lg flex items-center space-x-2 ${
-                feedback.type === "success"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
+      <div className="space-y-6">
+        {/* Selector de modo de envío */}
+        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+          <div className="flex items-center space-x-2 text-gray-600">
+            <Filter size={18} />
+            <span className="font-medium">Modo de envío:</span>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setSendMode("pending")}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                sendMode === "pending"
+                  ? "bg-yellow-600 text-white"
+                  : "bg-yellow-200 text-yellow-800 hover:bg-yellow-300"
               }`}
             >
-              {feedback.type === "success" ? (
-                <CheckCircle className="w-5 h-5" />
-              ) : (
-                <AlertTriangle className="w-5 h-5" />
-              )}
-              <span>{feedback.message}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              Pendientes (
+              {pendingLeads.filter((l) => l.status === "pending").length})
+            </button>
+            <button
+              onClick={() => setSendMode("contacted")}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                sendMode === "contacted"
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-200 text-blue-800 hover:bg-blue-300"
+              }`}
+            >
+              Contactados (
+              {pendingLeads.filter((l) => l.status === "contacted").length})
+            </button>
+            <button
+              onClick={() => setSendMode("converted")}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                sendMode === "converted"
+                  ? "bg-green-600 text-white"
+                  : "bg-green-200 text-green-800 hover:bg-green-300"
+              }`}
+            >
+              Convertidos (
+              {pendingLeads.filter((l) => l.status === "converted").length})
+            </button>
+          </div>
+        </div>
 
+        {/* Destinatarios */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="flex items-center space-x-2 text-gray-600 mb-2">
+            <Mail size={18} />
+            <span className="font-medium">Destinatarios:</span>
+            <span className="text-sm text-gray-500">
+              ({filteredLeads.length} seleccionados)
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {filteredLeads.map((lead) => (
+              <span
+                key={lead.id}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full 
+                         text-xs font-medium bg-blue-100 text-blue-800"
+              >
+                {lead.email}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Formulario */}
         <div className="space-y-4">
-          {/* Destinatarios */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-2 text-gray-600 mb-2">
-              <Mail size={18} />
-              <span className="font-medium">Destinatarios:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {pendingLeads.map((lead) => (
-                <span
-                  key={lead.id}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                >
-                  {lead.email}
-                </span>
-              ))}
-            </div>
+          <input
+            type="text"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="Asunto del correo"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 
+                     focus:ring-indigo-500 focus:border-indigo-500"
+          />
+
+          {/* Acciones de Plantilla */}
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => setShowTemplateGallery(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 
+                       text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              <File size={18} />
+              <span>Usar Plantilla</span>
+            </button>
+            <button
+              onClick={handleSaveAsTemplate}
+              className="flex items-center space-x-2 px-4 py-2 bg-green-600 
+                       text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Save size={18} />
+              <span>Guardar como Plantilla</span>
+            </button>
           </div>
 
-          {/* Asunto */}
-          <div>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Asunto del correo"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* Botones de modo */}
-          <div className="flex space-x-4">
+          {/* Controles de Edición */}
+          <div className="flex flex-wrap gap-4">
             <button
               onClick={() => setIsHtmlMode(!isHtmlMode)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200
-                ${
-                  isHtmlMode
-                    ? "bg-indigo-100 text-indigo-800"
-                    : "bg-gray-100 text-gray-600"
-                }`}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg 
+                       transition-colors ${
+                         isHtmlMode
+                           ? "bg-indigo-100 text-indigo-800"
+                           : "bg-gray-100 text-gray-600"
+                       }`}
             >
               <Code size={18} />
               <span>Modo HTML</span>
             </button>
             <button
               onClick={() => setIsPreviewMode(!isPreviewMode)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200
-                ${
-                  isPreviewMode
-                    ? "bg-indigo-100 text-indigo-800"
-                    : "bg-gray-100 text-gray-600"
-                }`}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg 
+                       transition-colors ${
+                         isPreviewMode
+                           ? "bg-indigo-100 text-indigo-800"
+                           : "bg-gray-100 text-gray-600"
+                       }`}
             >
               <Eye size={18} />
               <span>Vista Previa</span>
             </button>
           </div>
 
-          {/* Editor/Preview */}
+          {/* Editor/Vista Previa */}
           {isPreviewMode ? (
             <div
-              className="border rounded-lg p-4 min-h-[200px] bg-white"
+              className="border rounded-lg p-4 min-h-[200px] bg-white prose max-w-none"
               dangerouslySetInnerHTML={{
                 __html: isHtmlMode ? content : content.replace(/\n/g, "<br>"),
               }}
@@ -218,12 +369,12 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
                   : "Escribe tu mensaje aquí..."
               }
               rows={8}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500
-                         font-mono"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 
+                       focus:ring-indigo-500 focus:border-indigo-500 font-mono"
             />
           )}
 
-          {/* Progreso */}
+          {/* Barra de Progreso */}
           {isSending && progress > 0 && (
             <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
@@ -233,20 +384,17 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
             </div>
           )}
 
-          {/* Botón de envío */}
+          {/* Botón de Envío */}
           <div className="flex justify-end">
             <button
               onClick={handleSendEmails}
               disabled={isSending}
-              className={`
-                flex items-center space-x-2 px-6 py-3 rounded-lg text-white
-                transition-all duration-200
-                ${
-                  isSending
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700"
-                }
-              `}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg text-white
+                       transition-all duration-200 ${
+                         isSending
+                           ? "bg-gray-400 cursor-not-allowed"
+                           : "bg-indigo-600 hover:bg-indigo-700"
+                       }`}
             >
               {isSending ? (
                 <>
@@ -256,14 +404,37 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
               ) : (
                 <>
                   <Send size={18} />
-                  <span>Enviar a {pendingLeads.length} destinatarios</span>
+                  <span>Enviar a {filteredLeads.length} destinatarios</span>
                 </>
               )}
             </button>
           </div>
         </div>
+
+        {/* Modales de Plantillas */}
+        <AnimatePresence>
+          {showTemplateGallery && (
+            <EmailTemplateGallery
+              onSelectTemplate={handleTemplateSelect}
+              onClose={() => setShowTemplateGallery(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showTemplateForm && (
+            <EmailTemplateForm
+              template={selectedTemplate || undefined}
+              onClose={() => {
+                setShowTemplateForm(false);
+                setSelectedTemplate(null);
+              }}
+              onSuccess={handleTemplateFormSuccess}
+            />
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </Modal>
   );
 };
 

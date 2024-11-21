@@ -6,22 +6,21 @@ import {
   Star,
   CheckCircle,
   AlertCircle,
-  GraduationCap,
-  Shield,
-  Lock,
   HeartHandshake,
   FileCheck,
   Users,
+  Sparkles,
+  GraduationCap,
+  Shield,
 } from "lucide-react";
-import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
+import { getWhatsAppNumber } from "../hooks/useGeolocation";
 import PageTransition from "../components/PageTransition";
 
 const PromoBanner = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
-  const { location: geoLocation } = useGeolocation();
-  const whatsappNumber = getWhatsAppNumber(geoLocation?.continent_code);
+  const whatsappNumber = getWhatsAppNumber("NA");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,24 +67,25 @@ Quedo atento a su respuesta. ¡Gracias!`);
 
   return (
     <PageTransition>
-      <div className="h-screen w-screen overflow-hidden relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Cambiado de h-screen a min-h-screen y añadido pb-20 para móviles */}
+      <div className="min-h-screen w-screen overflow-x-hidden relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20 sm:pb-0">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05)_1px,transparent_1px)] bg-[length:20px_20px]" />
 
-        <div className="h-full w-full grid grid-cols-1 lg:grid-cols-2">
-          {/* Contenido */}
+        <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
+          {/* Contenido - Ajustado padding y márgenes para móvil */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="relative z-10 flex items-center justify-center p-8 lg:p-16 bg-gradient-to-r from-white/95 to-white/80 backdrop-blur-sm"
+            className="relative z-10 flex items-center justify-center p-4 sm:p-8 lg:p-16 bg-gradient-to-r from-white/95 to-white/80 backdrop-blur-sm"
           >
-            <div className="w-full max-w-lg space-y-8">
+            <div className="w-full max-w-lg space-y-6 sm:space-y-8 py-4 sm:py-8">
               <div className="space-y-4">
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-4xl lg:text-5xl font-bold leading-tight"
+                  className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight"
                 >
                   ¿Trabajas y no tienes tiempo para tus{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
@@ -93,7 +93,7 @@ Quedo atento a su respuesta. ¡Gracias!`);
                   </span>
                   ?
                 </motion.h1>
-                <p className="text-xl text-gray-600">
+                <p className="text-lg sm:text-xl text-gray-600">
                   Tutores expertos disponibles 24/7 para ayudarte con tus
                   trabajos
                 </p>
@@ -103,7 +103,7 @@ Quedo atento a su respuesta. ¡Gracias!`);
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5"
+                className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5"
               >
                 <Feature icon={<Clock size={18} />} text="Entrega en 24h" />
                 <Feature icon={<Star size={18} />} text="Calidad Premium" />
@@ -119,7 +119,30 @@ Quedo atento a su respuesta. ¡Gracias!`);
                   icon={<FileCheck size={18} />}
                   text="Verificación Turnitin"
                 />
-                <Feature icon={<Users size={18} />} text="+1000 Estudiantes" />
+                <Feature icon={<Shield size={18} />} text="100% Confidencial" />
+              </motion.div>
+
+              {/* Nuevo bloque de asignación de tutor */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 sm:p-6 rounded-xl border border-indigo-100 shadow-sm"
+              >
+                <div className="flex items-start space-x-3">
+                  <div className="bg-white p-2 rounded-lg flex-shrink-0">
+                    <Sparkles className="text-indigo-600 w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-semibold text-indigo-800 mb-1">
+                      ¡Encuentra tu tutor ideal!
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600">
+                      Déjanos tu correo y te asignaremos el tutor más calificado
+                      según tu área de estudio
+                    </p>
+                  </div>
+                </div>
               </motion.div>
 
               <motion.form
@@ -135,13 +158,13 @@ Quedo atento a su respuesta. ¡Gracias!`);
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tucorreo@ejemplo.com"
-                    className="flex-1 px-6 py-4 rounded-full border-2 border-indigo-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-300 text-lg"
+                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border-2 border-indigo-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-300 text-base sm:text-lg"
                     required
                   />
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`px-8 py-4 rounded-full font-semibold text-white transform transition-all duration-300 text-lg
+                    className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-white transform transition-all duration-300 text-base sm:text-lg
                       ${
                         isSubmitting
                           ? "bg-gray-400 cursor-not-allowed"
@@ -149,10 +172,10 @@ Quedo atento a su respuesta. ¡Gracias!`);
                       }`}
                   >
                     {isSubmitting ? (
-                      <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
+                      <div className="animate-spin w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full" />
                     ) : (
                       <div className="flex items-center justify-center space-x-2">
-                        <Send size={20} />
+                        <Send size={18} />
                         <span>¡Quiero Ayuda!</span>
                       </div>
                     )}
@@ -161,13 +184,25 @@ Quedo atento a su respuesta. ¡Gracias!`);
                 {status.message && <StatusMessage status={status} />}
               </motion.form>
 
+              {/* Stats - Ajustado espaciado y tamaño para móvil */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-sm text-gray-500 text-center"
+                className="flex flex-col space-y-2 mt-4 sm:mt-8"
               >
-                Más de 1,000 estudiantes confían en nosotros
+                <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 bg-white/50 rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm">
+                  <Users className="text-indigo-500 w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="font-medium">
+                    Más de 1,000 estudiantes confían en nosotros
+                  </span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 bg-white/50 rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm">
+                  <GraduationCap className="text-indigo-500 w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="font-medium">
+                    Más de 50 tutores expertos disponibles
+                  </span>
+                </div>
               </motion.div>
             </div>
           </motion.div>

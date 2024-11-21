@@ -260,7 +260,7 @@ const UniversitySlider = () => {
     <section className="relative w-full overflow-hidden bg-white py-16 md:py-28">
       <div className="relative w-full max-w-[1800px] mx-auto">
         <div className="mb-12 md:mb-20 px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Presencia en las siguientes Instituciones Académicas
           </h2>
         </div>
@@ -284,28 +284,46 @@ const UniversitySlider = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex-none mx-2 md:mx-6 transition-transform duration-500 
-                           hover:scale-110"
-                  style={{ width: "120px" }}
+                           hover:scale-110 w-32 md:w-40"
                 >
                   <div
-                    className="relative aspect-square flex items-center justify-center
+                    className="relative w-full aspect-square flex items-center justify-center
                               bg-white rounded-xl md:rounded-2xl shadow-md hover:shadow-xl 
-                              transition-all duration-500 p-3 md:p-6"
+                              transition-all duration-500 overflow-hidden"
                   >
+                    {/* Contenedor del contenido centrado */}
+                    <div className="absolute inset-0 flex items-center justify-center p-4 md:p-6">
+                      <LazyImage
+                        src={uni.logo}
+                        alt={uni.fullName}
+                        className="object-contain w-full h-full transition-all duration-500
+                                 group-hover:brightness-110 group-hover:contrast-110"
+                        threshold={0.1}
+                        placeholderClassName="rounded-xl md:rounded-2xl"
+                        draggable="false"
+                      />
+                    </div>
+
+                    {/* Overlay de hover */}
                     <div
                       className="absolute inset-0 rounded-xl md:rounded-2xl opacity-0 
-                                group-hover:opacity-20 transition-opacity duration-500"
+                                bg-gradient-to-b from-transparent via-transparent to-black/30
+                                group-hover:opacity-100 transition-opacity duration-500"
                     />
-                    <LazyImage
-                      src={uni.logo}
-                      alt={uni.fullName}
-                      className="relative w-full h-full object-contain
-                               transition-all duration-500
-                               group-hover:brightness-110 group-hover:contrast-110"
-                      threshold={0.1}
-                      placeholderClassName="rounded-xl md:rounded-2xl"
-                      draggable="false"
-                    />
+
+                    {/* Tooltip */}
+                    <div
+                      className="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 
+                                  transition-opacity duration-300 p-2 text-center transform
+                                  translate-y-full group-hover:translate-y-0"
+                    >
+                      <span
+                        className="text-white text-xs md:text-sm font-medium truncate block
+                                     text-shadow-sm"
+                      >
+                        {uni.name}
+                      </span>
+                    </div>
                   </div>
                 </a>
               ))}
