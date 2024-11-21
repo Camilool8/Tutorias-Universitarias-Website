@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 import path from "path";
 import { fileURLToPath } from "url";
 import compression from "compression";
+import nodemailer from "nodemailer";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -25,6 +27,21 @@ const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.VITE_SUPABASE_ANON_KEY
 );
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+const emailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message:
+    "Demasiadas solicitudes de envío de correo, por favor intente más tarde",
+});
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -167,6 +184,223 @@ app.post("/api/submit-form", async (req, res) => {
   }
 });
 
+// Email routes
+
+// Endpoint para enviar correos
+app.post("/api/send-email", verifyToken, emailLimiter, async (req, res) => {
+  const { to, subject, content, isHtml } = req.body;
+
+  try {
+    // Configuración del correo
+    const mailOptions = {
+      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      [isHtml ? "html" : "text"]: content,
+      headers: {
+        "X-Priority": "3",
+        "X-MSMail-Priority": "Normal",
+        Precedence: "Bulk",
+        "List-Unsubscribe": `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`,
+      },
+    };
+
+    // Enviar el correo
+    await transporter.sendMail(mailOptions);
+
+    // Registrar el envío exitoso
+    const { error: logError } = await supabase.from("email_logs").insert([
+      {
+        recipient: to,
+        subject,
+        sent_at: new Date().toISOString(),
+        status: "sent",
+      },
+    ]);
+
+    if (logError) {
+      console.error("Error al registrar el envío:", logError);
+    }
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error al enviar el correo:", error);
+
+    // Registrar el error
+    await supabase.from("email_logs").insert([
+      {
+        recipient: to,
+        subject,
+        sent_at: new Date().toISOString(),
+        status: "error",
+        error_message: error.message,
+      },
+    ]);
+
+    res.status(500).json({
+      error: "Error al enviar el correo",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+// Endpoint para actualizar el estado de un lead
+app.patch("/api/leads/:id", verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const { status, last_contacted } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .update({
+        status,
+        last_contacted,
+      })
+      .eq("id", id)
+      .select();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error al actualizar el lead:", error);
+    res.status(500).json({
+      error: "Error al actualizar el estado del lead",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+// Endpoint para obtener estadísticas con datos por hora
+app.get("/api/email-stats", verifyToken, async (req, res) => {
+  try {
+    // Obtener las últimas 24 horas de logs
+    const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const { data, error } = await supabase
+      .from("email_logs")
+      .select("*")
+      .gte("sent_at", startTime.toISOString())
+      .order("sent_at", { ascending: true });
+
+    if (error) throw error;
+
+    // Procesar datos por hora
+    const hourlyData = Array.from({ length: 24 }, (_, i) => {
+      const hour = new Date(startTime);
+      hour.setHours(hour.getHours() + i);
+
+      const hourLogs = data.filter((log) => {
+        const logDate = new Date(log.sent_at);
+        return logDate.getHours() === hour.getHours();
+      });
+
+      return {
+        hour: hour.getHours().toString().padStart(2, "0") + ":00",
+        sent: hourLogs.filter((log) => log.status === "sent").length,
+        failed: hourLogs.filter((log) => log.status === "error").length,
+        successRate:
+          hourLogs.length > 0
+            ? (
+                (hourLogs.filter((log) => log.status === "sent").length /
+                  hourLogs.length) *
+                100
+              ).toFixed(1)
+            : 0,
+      };
+    });
+
+    const stats = {
+      total: data.length,
+      sent: data.filter((log) => log.status === "sent").length,
+      failed: data.filter((log) => log.status === "error").length,
+      successRate: data.length
+        ? (
+            (data.filter((log) => log.status === "sent").length / data.length) *
+            100
+          ).toFixed(1)
+        : 0,
+      hourlyData,
+    };
+
+    res.json(stats);
+  } catch (error) {
+    console.error("Error al obtener estadísticas:", error);
+    res.status(500).json({
+      error: "Error al obtener estadísticas",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+app.get("/api/email-service/status", verifyToken, async (req, res) => {
+  try {
+    await transporter.verify();
+
+    const { data: recentLogs, error } = await supabase
+      .from("email_logs")
+      .select("status")
+      .gte("sent_at", new Date(Date.now() - 60000).toISOString());
+
+    if (error) throw error;
+
+    const recentErrors =
+      recentLogs?.filter((log) => log.status === "error").length || 0;
+    const serviceStatus = recentErrors > 5 ? "degraded" : "operational";
+
+    res.json({
+      status: serviceStatus,
+      lastMinute: {
+        total: recentLogs?.length || 0,
+        errors: recentErrors,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Servicio no disponible",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+// Lead routes
+
+app.post("/api/capture-lead", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const { data, error } = await supabase
+      .from("leads")
+      .insert([{ email }])
+      .select();
+
+    if (error) {
+      if (error.code === "23505") {
+        // Unique violation
+        return res.status(409).json({
+          message: "Este correo ya está registrado en nuestra base de datos",
+        });
+      }
+      throw error;
+    }
+
+    res.json({
+      message: "Lead capturado exitosamente",
+      data: data[0],
+    });
+  } catch (error) {
+    console.error("Error capturing lead:", error);
+    res.status(500).json({
+      message: "Error al procesar la solicitud",
+    });
+  }
+});
+
 app.get("/api/submissions", verifyToken, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -284,6 +518,36 @@ app.get("/api/analytics", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching analytics:", error);
     res.status(500).json({ error: "Error fetching analytics" });
+  }
+});
+
+app.get("/api/leads", verifyToken, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching leads:", error);
+    res.status(500).json({ error: "Error fetching leads" });
+  }
+});
+
+app.patch("/api/leads/:id", verifyToken, async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from("leads")
+      .update(req.body)
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+    res.json({ message: "Lead updated successfully" });
+  } catch (error) {
+    console.error("Error updating lead:", error);
+    res.status(500).json({ error: "Error updating lead" });
   }
 });
 

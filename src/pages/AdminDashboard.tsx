@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, FileText, BarChart2, AlertCircle } from "lucide-react";
+import { LogOut, FileText, BarChart2, Mail, AlertCircle } from "lucide-react";
 import SubmissionsList from "../components/SubmissionsList";
 import Analytics from "../components/Analytics";
+import LeadsList from "../components/LeadsList";
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("solicitudes");
@@ -22,9 +23,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 mt-8">
+    <div className="relative min-h-screen bg-gray-100 mt-3 sm:mt-3 md:mt-3 lg:mt-8 xl:mt-3">
       <nav className="bg-indigo-600 text-white p-4 shadow-md">
-        <div className="container mx-auto px-4 flex justify-between items-center">
+        <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">Panel de Administración</h1>
           <button
             onClick={handleLogout}
@@ -55,9 +56,16 @@ const AdminDashboard: React.FC = () => {
             icon={<BarChart2 size={18} />}
             text="Analíticas"
           />
+          <TabButton
+            active={activeTab === "leads"}
+            onClick={() => setActiveTab("leads")}
+            icon={<Mail size={18} />}
+            text="Leads"
+          />
         </div>
         {activeTab === "solicitudes" && <SubmissionsList setError={setError} />}
         {activeTab === "analiticas" && <Analytics setError={setError} />}
+        {activeTab === "leads" && <LeadsList setError={setError} />}
       </div>
     </div>
   );
