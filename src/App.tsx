@@ -26,6 +26,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const PromoPage = lazy(() => import("./pages/PromoPage"));
 const NotFound = lazy(() => import("./components/NotFound"));
 const EmailStatus = lazy(() => import("./pages/EmailStatus"));
+const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
                 />
                 <Route path="/admin/email-status" element={<EmailStatus />} />
                 <Route path="/promo" element={<PromoPage />} />
+                <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

@@ -45,7 +45,6 @@ const emailLimiter = rateLimit({
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) return res.status(403).json({ error: "No token provided" });
@@ -138,11 +137,24 @@ app.get("/api/check-admin", async (req, res) => {
 
 // Submission routes
 
+app.get("/api/submissions", verifyToken, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("submissions")
+      .select("*")
+      .order("submittedAt", { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching submissions:", error);
+    res.status(500).json({ error: "Error fetching submissions" });
+  }
+});
+
 app.post("/api/submit-form", async (req, res) => {
   try {
     const today = new Date().toISOString().split("T")[0];
 
-    // Generate task ID
     const { data: countData, error: countError } = await supabase
       .from("task_counter")
       .select("count")
@@ -166,7 +178,6 @@ app.post("/api/submit-form", async (req, res) => {
       ""
     )}`;
 
-    // Insert submission with generated ID
     const { data, error } = await supabase
       .from("submissions")
       .insert({
@@ -186,12 +197,56 @@ app.post("/api/submit-form", async (req, res) => {
 
 // Email routes
 
-// Endpoint para enviar correos
+// Backend: Modificación del endpoint check-email
+app.post("/api/check-email", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "El email es requerido" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .select("id, status")
+      .eq("email", email.toLowerCase().trim());
+
+    if (error) {
+      throw error;
+    }
+
+    if (data && data.length > 0) {
+      const lead = data[0];
+      if (lead.status !== "not_interested") {
+        return res.json({
+          exists: true,
+          status: lead.status,
+        });
+      }
+      return res.json({
+        exists: false,
+        message: "Este email ya está desuscrito",
+      });
+    }
+
+    return res.json({
+      exists: false,
+      message: "Email no encontrado",
+    });
+  } catch (error) {
+    console.error("Error al verificar email:", error);
+    return res.status(500).json({
+      error: "Error al verificar el email",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
 app.post("/api/send-email", verifyToken, emailLimiter, async (req, res) => {
   const { to, subject, content, isHtml } = req.body;
 
   try {
-    // Configuración del correo
     const mailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
       to,
@@ -205,10 +260,8 @@ app.post("/api/send-email", verifyToken, emailLimiter, async (req, res) => {
       },
     };
 
-    // Enviar el correo
     await transporter.sendMail(mailOptions);
 
-    // Registrar el envío exitoso
     const { error: logError } = await supabase.from("email_logs").insert([
       {
         recipient: to,
@@ -226,7 +279,6 @@ app.post("/api/send-email", verifyToken, emailLimiter, async (req, res) => {
   } catch (error) {
     console.error("Error al enviar el correo:", error);
 
-    // Registrar el error
     await supabase.from("email_logs").insert([
       {
         recipient: to,
@@ -245,38 +297,8 @@ app.post("/api/send-email", verifyToken, emailLimiter, async (req, res) => {
   }
 });
 
-// Endpoint para actualizar el estado de un lead
-app.patch("/api/leads/:id", verifyToken, async (req, res) => {
-  const { id } = req.params;
-  const { status, last_contacted } = req.body;
-
-  try {
-    const { data, error } = await supabase
-      .from("leads")
-      .update({
-        status,
-        last_contacted,
-      })
-      .eq("id", id)
-      .select();
-
-    if (error) throw error;
-
-    res.json(data);
-  } catch (error) {
-    console.error("Error al actualizar el lead:", error);
-    res.status(500).json({
-      error: "Error al actualizar el estado del lead",
-      details:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-});
-
-// Endpoint para obtener estadísticas con datos por hora
 app.get("/api/email-stats", verifyToken, async (req, res) => {
   try {
-    // Obtener las últimas 24 horas de logs
     const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const { data, error } = await supabase
@@ -287,7 +309,6 @@ app.get("/api/email-stats", verifyToken, async (req, res) => {
 
     if (error) throw error;
 
-    // Procesar datos por hora
     const hourlyData = Array.from({ length: 24 }, (_, i) => {
       const hour = new Date(startTime);
       hour.setHours(hour.getHours() + i);
@@ -369,6 +390,7 @@ app.get("/api/email-service/status", verifyToken, async (req, res) => {
 });
 
 // Email Templates Routes
+
 app.get("/api/email-templates", verifyToken, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -450,7 +472,6 @@ app.delete("/api/email-templates/:id", verifyToken, async (req, res) => {
   }
 });
 
-// Route para obtener una plantilla específica
 app.get("/api/email-templates/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -506,19 +527,170 @@ app.post("/api/capture-lead", async (req, res) => {
   }
 });
 
-app.get("/api/submissions", verifyToken, async (req, res) => {
+app.get("/api/leads", verifyToken, async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from("submissions")
+      .from("leads")
       .select("*")
-      .order("submittedAt", { ascending: false });
+      .order("created_at", { ascending: false });
+
     if (error) throw error;
     res.json(data);
   } catch (error) {
-    console.error("Error fetching submissions:", error);
-    res.status(500).json({ error: "Error fetching submissions" });
+    console.error("Error fetching leads:", error);
+    res.status(500).json({ error: "Error fetching leads" });
   }
 });
+
+app.patch("/api/leads/:id", verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const { status, last_contacted } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .update({
+        status,
+        last_contacted,
+      })
+      .eq("id", id)
+      .select();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error al actualizar el lead:", error);
+    res.status(500).json({
+      error: "Error al actualizar el estado del lead",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+app.post("/api/check-lead-status", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      error: "El correo electrónico es requerido",
+    });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .select("status, unsubscribed_at")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res.json({ status: "new" });
+    }
+
+    if (data.status === "not_interested" && data.unsubscribed_at) {
+      const daysSinceLastContact = Math.floor(
+        (new Date() - new Date(data.unsubscribed_at)) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysSinceLastContact > 30) {
+        return res.json({ status: "reengagement_opportunity" });
+      }
+    }
+
+    res.json({ status: data.status });
+  } catch (error) {
+    console.error("Error checking lead status:", error);
+    res.status(500).json({
+      error: "Error al verificar el estado del lead",
+    });
+  }
+});
+
+app.post("/api/unsubscribe", async (req, res) => {
+  const { email, reason, feedback } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "El email es requerido" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .update({
+        status: "not_interested",
+        unsubscribed_at: new Date().toISOString(),
+        unsubscribe_reason: reason || null,
+        unsubscribe_feedback: feedback || null,
+      })
+      .eq("email", email.toLowerCase().trim())
+      .select();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: "Te has desuscrito exitosamente",
+    });
+  } catch (error) {
+    console.error("Error en la desuscripción:", error);
+    res.status(500).json({
+      error: "Error al procesar la desuscripción",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+app.post("/api/stay-subscribed", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "El email es requerido" });
+  }
+
+  try {
+    const { data: currentData, error: fetchError } = await supabase
+      .from("leads")
+      .select("stay_count")
+      .eq("email", email.toLowerCase().trim())
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const newStayCount = (currentData?.stay_count || 0) + 1;
+
+    const { data, error } = await supabase
+      .from("leads")
+      .update({
+        stay_count: newStayCount,
+        last_stay_at: new Date().toISOString(),
+        last_contacted_at: new Date().toISOString(),
+      })
+      .eq("email", email.toLowerCase().trim())
+      .select();
+
+    if (error) throw error;
+
+    return res.json({
+      success: true,
+      message: "¡Gracias por quedarte con nosotros!",
+      data,
+    });
+  } catch (error) {
+    console.error("Error al registrar retención:", error);
+    return res.status(500).json({
+      error: "Error al procesar la solicitud",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+// Analytics routes
 
 app.get("/api/analytics", verifyToken, async (req, res) => {
   try {
@@ -626,35 +798,20 @@ app.get("/api/analytics", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/api/leads", verifyToken, async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false });
+// app.patch("/api/leads/:id", verifyToken, async (req, res) => {
+//   try {
+//     const { error } = await supabase
+//       .from("leads")
+//       .update(req.body)
+//       .eq("id", req.params.id);
 
-    if (error) throw error;
-    res.json(data);
-  } catch (error) {
-    console.error("Error fetching leads:", error);
-    res.status(500).json({ error: "Error fetching leads" });
-  }
-});
-
-app.patch("/api/leads/:id", verifyToken, async (req, res) => {
-  try {
-    const { error } = await supabase
-      .from("leads")
-      .update(req.body)
-      .eq("id", req.params.id);
-
-    if (error) throw error;
-    res.json({ message: "Lead updated successfully" });
-  } catch (error) {
-    console.error("Error updating lead:", error);
-    res.status(500).json({ error: "Error updating lead" });
-  }
-});
+//     if (error) throw error;
+//     res.json({ message: "Lead updated successfully" });
+//   } catch (error) {
+//     console.error("Error updating lead:", error);
+//     res.status(500).json({ error: "Error updating lead" });
+//   }
+// });
 
 app.use((req, res, next) => {
   res.status(404).sendFile(path.join(__dirname, "../dist/index.html"));

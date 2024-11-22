@@ -1,37 +1,114 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
   Clock,
   Star,
   CheckCircle,
   AlertCircle,
+  InfoIcon,
   HeartHandshake,
   FileCheck,
   Users,
   Sparkles,
   GraduationCap,
   Shield,
+  ArrowRight,
+  RefreshCw,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getWhatsAppNumber } from "../hooks/useGeolocation";
 import PageTransition from "../components/PageTransition";
 
 const PromoBanner = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [leadStatus, setLeadStatus] = useState(null);
   const [status, setStatus] = useState({ type: "", message: "" });
   const whatsappNumber = getWhatsAppNumber("NA");
 
-  const handleSubmit = async (e) => {
+  const checkLeadStatus = async (email: string) => {
+    try {
+      setIsChecking(true);
+      const response = await fetch("/api/check-lead-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) throw new Error("Error al verificar el estado");
+
+      const data = await response.json();
+      return data.status;
+    } catch (error) {
+      console.error("Error checking lead status:", error);
+      throw error;
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    if (status.message) {
+      const timer = setTimeout(() => {
+        setStatus({ type: "", message: "" });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setStatus({ type: "", message: "" });
 
     try {
+      // Primero verificamos el estado del lead
+      const currentStatus = await checkLeadStatus(email);
+      setLeadStatus(currentStatus);
+
+      if (currentStatus === "converted") {
+        setStatus({
+          type: "success",
+          message:
+            "¡Ya eres parte de nuestra comunidad de estudiantes exitosos!",
+        });
+        return;
+      }
+
+      if (currentStatus === "contacted") {
+        setStatus({
+          type: "info",
+          message: "Ya estamos en contacto contigo. ¡Revisa tu WhatsApp!",
+        });
+        return;
+      }
+
+      if (currentStatus === "reengagement_opportunity") {
+        setStatus({
+          type: "info",
+          message:
+            "¡Estamos en contacto contigo! ¿Te gustaría volver a contactar? Escribenos al WhatsApp.",
+        });
+        return;
+      }
+      if (currentStatus === "not_interested") {
+        setStatus({
+          type: "info",
+          message:
+            "Ya te has desuscrito de nuestra lista de correos. Utiliza otro correo y volverás a ser contactado.",
+        });
+        return;
+      }
+
       const response = await fetch("/api/capture-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          previousStatus: currentStatus,
+        }),
       });
 
       if (!response.ok) throw new Error("Error al enviar el formulario");
@@ -47,33 +124,98 @@ Me gustaría recibir información sobre:
 - Servicio de verificación de originalidad
 - Precios y planes disponibles
 
+${
+  currentStatus === "not_interested"
+    ? "He decidido retomar el contacto con ustedes."
+    : ""
+}
+
 Quedo atento a su respuesta. ¡Gracias!`);
 
       window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+
       setStatus({
         type: "success",
-        message: "¡Genial! Redirigiendo a WhatsApp...",
+        message:
+          currentStatus === "not_interested"
+            ? "¡Bienvenido de vuelta! Redirigiendo a WhatsApp..."
+            : "¡Genial! Redirigiendo a WhatsApp...",
       });
+
       setEmail("");
     } catch (error) {
       setStatus({
         type: "error",
         message: "Error al enviar. Intenta de nuevo.",
       });
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error submitting form:", error);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const renderActionButton = () => {
+    if (isChecking) {
+      return (
+        <button
+          disabled
+          className="px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-white bg-gray-400 cursor-not-allowed"
+        >
+          <RefreshCw className="animate-spin h-5 w-5" />
+        </button>
+      );
+    }
+
+    if (leadStatus === "converted") {
+      return (
+        <Link
+          to="/services"
+          className="px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-white
+                   bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg 
+                   transform transition-all duration-300 hover:-translate-y-1
+                   flex items-center justify-center space-x-2"
+        >
+          <span>Ver Servicios</span>
+          <ArrowRight className="h-5 w-5" />
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-white 
+                   transform transition-all duration-300 text-base sm:text-lg
+                   ${
+                     isSubmitting
+                       ? "bg-gray-400 cursor-not-allowed"
+                       : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:shadow-lg hover:-translate-y-1"
+                   }`}
+      >
+        {isSubmitting ? (
+          <div className="animate-spin w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full" />
+        ) : (
+          <div className="flex items-center justify-center space-x-2">
+            <Send size={18} />
+            <span>
+              {leadStatus === "not_interested"
+                ? "¡Quiero Volver!"
+                : "¡Quiero Ayuda!"}
+            </span>
+          </div>
+        )}
+      </button>
+    );
+  };
+
   return (
     <PageTransition>
-      {/* Cambiado de h-screen a min-h-screen y añadido pb-20 para móviles */}
       <div className="min-h-screen w-screen overflow-x-hidden relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20 sm:pb-0">
-        {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05)_1px,transparent_1px)] bg-[length:20px_20px]" />
-
         <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
-          {/* Contenido - Ajustado padding y márgenes para móvil */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -122,7 +264,6 @@ Quedo atento a su respuesta. ¡Gracias!`);
                 <Feature icon={<Shield size={18} />} text="100% Confidencial" />
               </motion.div>
 
-              {/* Nuevo bloque de asignación de tutor */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -158,30 +299,19 @@ Quedo atento a su respuesta. ¡Gracias!`);
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tucorreo@ejemplo.com"
-                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border-2 border-indigo-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-300 text-base sm:text-lg"
+                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border-2 
+                       border-indigo-100 focus:border-indigo-500 focus:ring-2 
+                       focus:ring-indigo-200 outline-none transition-all duration-300 
+                       text-base sm:text-lg"
                     required
                   />
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-white transform transition-all duration-300 text-base sm:text-lg
-                      ${
-                        isSubmitting
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:shadow-lg hover:translate-y-[-2px]"
-                      }`}
-                  >
-                    {isSubmitting ? (
-                      <div className="animate-spin w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full" />
-                    ) : (
-                      <div className="flex items-center justify-center space-x-2">
-                        <Send size={18} />
-                        <span>¡Quiero Ayuda!</span>
-                      </div>
-                    )}
-                  </button>
+                  {renderActionButton()}
                 </div>
-                {status.message && <StatusMessage status={status} />}
+                <AnimatePresence mode="wait">
+                  {status.message && (
+                    <StatusMessage key={status.message} status={status} />
+                  )}
+                </AnimatePresence>
               </motion.form>
 
               {/* Stats - Ajustado espaciado y tamaño para móvil */}
@@ -250,11 +380,15 @@ const StatusMessage = ({ status }) => (
     className={`p-4 rounded-lg flex items-center space-x-2 ${
       status.type === "error"
         ? "bg-red-50 text-red-700"
+        : status.type === "info"
+        ? "bg-blue-50 text-blue-700"
         : "bg-green-50 text-green-700"
     }`}
   >
     {status.type === "error" ? (
       <AlertCircle size={18} />
+    ) : status.type === "info" ? (
+      <InfoIcon size={18} />
     ) : (
       <CheckCircle size={18} />
     )}

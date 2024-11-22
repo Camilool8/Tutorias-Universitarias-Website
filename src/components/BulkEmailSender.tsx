@@ -233,39 +233,56 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
             <Filter size={18} />
             <span className="font-medium">Modo de envío:</span>
           </div>
-          <div className="flex gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
             <button
               onClick={() => setSendMode("pending")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                sendMode === "pending"
-                  ? "bg-yellow-600 text-white"
-                  : "bg-yellow-200 text-yellow-800 hover:bg-yellow-300"
-              }`}
+              className={`flex items-center justify-center px-3 sm:px-4 py-2 rounded-lg 
+          transition-all duration-200 text-sm sm:text-base
+          ${
+            sendMode === "pending"
+              ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-500 shadow-sm"
+              : "bg-yellow-50 text-yellow-800 hover:bg-yellow-100 border border-yellow-200"
+          }`}
             >
-              Pendientes (
-              {pendingLeads.filter((l) => l.status === "pending").length})
+              <span className="hidden sm:inline">🕒 </span>
+              <span className="flex-shrink-0">Pendientes</span>
+              <span className="ml-1.5 flex-shrink-0 bg-white bg-opacity-50 px-1.5 py-0.5 rounded-full text-xs">
+                {pendingLeads.filter((l) => l.status === "pending").length}
+              </span>
             </button>
+
             <button
               onClick={() => setSendMode("contacted")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                sendMode === "contacted"
-                  ? "bg-blue-600 text-white"
-                  : "bg-blue-200 text-blue-800 hover:bg-blue-300"
-              }`}
+              className={`flex items-center justify-center px-3 sm:px-4 py-2 rounded-lg 
+          transition-all duration-200 text-sm sm:text-base
+          ${
+            sendMode === "contacted"
+              ? "bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-sm"
+              : "bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200"
+          }`}
             >
-              Contactados (
-              {pendingLeads.filter((l) => l.status === "contacted").length})
+              <span className="hidden sm:inline">📞 </span>
+              <span className="flex-shrink-0">Contactados</span>
+              <span className="ml-1.5 flex-shrink-0 bg-white bg-opacity-50 px-1.5 py-0.5 rounded-full text-xs">
+                {pendingLeads.filter((l) => l.status === "contacted").length}
+              </span>
             </button>
+
             <button
               onClick={() => setSendMode("converted")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                sendMode === "converted"
-                  ? "bg-green-600 text-white"
-                  : "bg-green-200 text-green-800 hover:bg-green-300"
-              }`}
+              className={`flex items-center justify-center px-3 sm:px-4 py-2 rounded-lg 
+          transition-all duration-200 text-sm sm:text-base
+          ${
+            sendMode === "converted"
+              ? "bg-green-100 text-green-800 border-2 border-green-500 shadow-sm"
+              : "bg-green-50 text-green-800 hover:bg-green-100 border border-green-200"
+          }`}
             >
-              Convertidos (
-              {pendingLeads.filter((l) => l.status === "converted").length})
+              <span className="hidden sm:inline">✨ </span>
+              <span className="flex-shrink-0">Convertidos</span>
+              <span className="ml-1.5 flex-shrink-0 bg-white bg-opacity-50 px-1.5 py-0.5 rounded-full text-xs">
+                {pendingLeads.filter((l) => l.status === "converted").length}
+              </span>
             </button>
           </div>
         </div>
