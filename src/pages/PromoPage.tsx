@@ -63,6 +63,8 @@ const PromoBanner = () => {
     setIsSubmitting(true);
     setStatus({ type: "", message: "" });
 
+    const newWindow = window.open();
+
     try {
       // Primero verificamos el estado del lead
       const currentStatus = await checkLeadStatus(email);
@@ -132,7 +134,9 @@ ${
 
 Quedo atento a su respuesta. ¡Gracias!`);
 
-      window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+      if (newWindow) {
+        newWindow.location.href = `https://wa.me/${whatsappNumber}?text=${message}`;
+      }
 
       setStatus({
         type: "success",
@@ -150,6 +154,9 @@ Quedo atento a su respuesta. ¡Gracias!`);
       });
       if (process.env.NODE_ENV === "development") {
         console.error("Error submitting form:", error);
+      }
+      if (newWindow) {
+        newWindow.close();
       }
     } finally {
       setIsSubmitting(false);
