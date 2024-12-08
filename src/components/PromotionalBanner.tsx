@@ -118,7 +118,11 @@ Quedo atento a su respuesta. ¡Gracias!`);
                   </h3>
                 </div>
                 <p className="text-white/90">
-                  ¡Déjanos asignarte el tutor ideal para tus tareas académicas!
+                  ¡Déjanos tu correo y te asignamos un tutor para tus tareas
+                  académicas.{" "}
+                  <span className=" text-yellow-300 font-bold shadow-xl">
+                    ¡Totalmente Gratis!
+                  </span>
                 </p>
               </div>
 
