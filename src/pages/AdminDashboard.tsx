@@ -12,7 +12,7 @@ import {
 import SubmissionsList from "../components/SubmissionsList";
 import Analytics from "../components/Analytics";
 import LeadsList from "../components/LeadsList";
-import LeadsAnalytics from "../components/LeadsAnalytics"; // Importamos el nuevo componente
+import LeadsAnalytics from "../components/LeadsAnalytics";
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("solicitudes");
