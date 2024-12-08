@@ -381,7 +381,7 @@ const LeadsList: React.FC<LeadsListProps> = ({ setError }) => {
                               bg-gray-50 hover:bg-white transition-colors duration-200"
                   />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                   <button
                     onClick={() => window.open(`mailto:${lead.email}`)}
                     className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200"

@@ -17,6 +17,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 const UniversitySlider = lazy(() => import("../components/UniversitySlider"));
+const PromotionalBanner = lazy(() => import("../components/PromotionalBanner"));
 
 // Datos para las features
 const features = [
@@ -113,254 +114,258 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-purple-50">
-      {/* Hero Section Mejorado */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-        {/* Fondo de respaldo con gradiente mientras carga la imagen */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900" />
+    <>
+      <div className="bg-gradient-to-b from-blue-50 to-purple-50">
+        {/* Hero Section Mejorado */}
+        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+          {/* Fondo de respaldo con gradiente mientras carga la imagen */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900" />
 
-        {/* Contenedor de la imagen de fondo */}
-        <div
-          className={`absolute inset-0 transition-opacity duration-1000 ease-out
+          {/* Contenedor de la imagen de fondo */}
+          <div
+            className={`absolute inset-0 transition-opacity duration-1000 ease-out
           ${isImageLoaded ? "opacity-100" : "opacity-0"}`}
-        >
-          {/* Overlay de gradiente sobre la imagen */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-blue-900/85 to-purple-900/90" />
-
-          {/* Imagen de fondo */}
-          <img
-            src="/images/hero-image.webp"
-            alt="imagen de fondo"
-            className="h-full w-full object-cover object-center"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-          />
-        </div>
-
-        {/* Patrón de puntos decorativo */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:20px_20px]" />
-
-        {/* Contenido principal */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-8"
           >
-            {/* Título principal */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
-              <span className="block">Bienvenido a</span>
-              <span className="block mt-2 bg-gradient-to-r from-yellow-300 to-yellow-500 text-transparent bg-clip-text">
-                Tutorías Universitarias
-              </span>
-            </h1>
+            {/* Overlay de gradiente sobre la imagen */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-blue-900/85 to-purple-900/90" />
 
-            {/* Subtítulo */}
-            <p className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-200 leading-relaxed">
-              Tu aliado académico que convierte los retos en oportunidades de
-              aprendizaje y crecimiento profesional
-            </p>
+            {/* Imagen de fondo */}
+            <img
+              src="/images/hero-image.webp"
+              alt="imagen de fondo"
+              className="h-full w-full object-cover object-center"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </div>
 
-            {/* Botones CTA */}
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8">
-              <Link
-                to="/cotizar"
-                className="group relative inline-flex items-center justify-center
-                       px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 
-                       text-blue-900 font-semibold transform transition-all duration-300 
-                       hover:scale-105 hover:shadow-xl"
-              >
-                <Calculator className="mr-2 h-5 w-5" />
-                <span>Cotiza Con Nosotros</span>
-                <ArrowRight
-                  className="ml-2 h-5 w-5 transform transition-transform 
-                                   group-hover:translate-x-1"
-                />
-              </Link>
+          {/* Patrón de puntos decorativo */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:20px_20px]" />
 
-              <a
-                aria-label="Contactar por WhatsApp"
-                href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center p-3
-                       rounded-full bg-green-500 text-white 
-                       transform transition-all duration-300 hover:scale-105
-                       hover:shadow-xl hover:bg-green-600"
-              >
-                <FaWhatsapp className="h-6 w-6" />
-              </a>
-            </div>
-
-            {/* Badges de confianza */}
+          {/* Contenido principal */}
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-wrap justify-center gap-4 mt-12"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="space-y-8"
             >
-              <TrustBadge
-                icon={<Shield className="h-6 w-6" />}
-                text="100% Confidencial"
-              />
-              <TrustBadge
-                icon={<Star className="h-6 w-6" />}
-                text="Calidad Garantizada"
-              />
-              <TrustBadge
-                icon={<Zap className="h-6 w-6" />}
-                text="Entrega Rápida"
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Degradado inferior */}
-        <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-blue-50 to-transparent" />
-      </section>
-
-      {/* Features Section */}
-      <Suspense
-        fallback={
-          <div className="fixed inset-0 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="mt-4 text-indigo-800 font-medium">Cargando...</p>
-            </div>
-          </div>
-        }
-      >
-        <section className="py-24 bg-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-          <div className="container mx-auto px-4 relative">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                ¿Por qué elegir{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              {/* Título principal */}
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
+                <span className="block">Bienvenido a</span>
+                <span className="block mt-2 bg-gradient-to-r from-yellow-300 to-yellow-500 text-transparent bg-clip-text">
                   Tutorías Universitarias
+                </span>
+              </h1>
+
+              {/* Subtítulo */}
+              <p className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-200 leading-relaxed">
+                Tu aliado académico que convierte los retos en oportunidades de
+                aprendizaje y crecimiento profesional
+              </p>
+
+              {/* Botones CTA */}
+              <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8">
+                <Link
+                  to="/cotizar"
+                  className="group relative inline-flex items-center justify-center
+                       px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 
+                       text-blue-900 font-semibold transform transition-all duration-300 
+                       hover:scale-105 hover:shadow-xl"
+                >
+                  <Calculator className="mr-2 h-5 w-5" />
+                  <span>Cotiza Con Nosotros</span>
+                  <ArrowRight
+                    className="ml-2 h-5 w-5 transform transition-transform 
+                                   group-hover:translate-x-1"
+                  />
+                </Link>
+
+                <a
+                  aria-label="Contactar por WhatsApp"
+                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center p-3
+                       rounded-full bg-green-500 text-white 
+                       transform transition-all duration-300 hover:scale-105
+                       hover:shadow-xl hover:bg-green-600"
+                >
+                  <FaWhatsapp className="h-6 w-6" />
+                </a>
+              </div>
+
+              {/* Badges de confianza */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="flex flex-wrap justify-center gap-4 mt-12"
+              >
+                <TrustBadge
+                  icon={<Shield className="h-6 w-6" />}
+                  text="100% Confidencial"
+                />
+                <TrustBadge
+                  icon={<Star className="h-6 w-6" />}
+                  text="Calidad Garantizada"
+                />
+                <TrustBadge
+                  icon={<Zap className="h-6 w-6" />}
+                  text="Entrega Rápida"
+                />
+              </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Degradado inferior */}
+          <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-blue-50 to-transparent" />
+        </section>
+
+        {/* Features Section */}
+        <Suspense
+          fallback={
+            <div className="fixed inset-0 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="mt-4 text-indigo-800 font-medium">Cargando...</p>
+              </div>
+            </div>
+          }
+        >
+          <section className="py-24 bg-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+            <div className="container mx-auto px-4 relative">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  ¿Por qué elegir{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                    Tutorías Universitarias
+                  </span>
+                  ?
+                </h2>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  Transformamos tu experiencia académica con soluciones
+                  personalizadas y resultados excepcionales
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {features.map((feature, index) => (
+                  <FeatureCard key={index} {...feature} delay={index * 0.1} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* How It Works Section */}
+          <section className="py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  Proceso Simple y Efectivo
+                </h2>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  En tres pasos sencillos, transformamos tus desafíos en éxitos
+                  académicos
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                {/* Línea conectora para desktop */}
+                <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 transform -translate-y-1/2" />
+
+                {steps.map((step, index) => (
+                  <StepCard
+                    key={index}
+                    {...step}
+                    number={index + 1}
+                    delay={index * 0.2}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* University Slider */}
+          <UniversitySlider />
+
+          {/* Testimonials Section */}
+          <section className="py-24 bg-gradient-to-br from-blue-900 to-purple-900 relative overflow-hidden">
+            <div className="absolute inset-0">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]" />
+            </div>
+
+            <div className="container mx-auto px-4 relative">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                  Voces de Éxito
+                </h2>
+                <p className="text-xl text-gray-200 max-w-2xl mx-auto">
+                  Descubre lo que nuestros estudiantes dicen sobre su
+                  experiencia
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {testimonials.map((testimonial, index) => (
+                  <TestimonialCard
+                    key={index}
+                    {...testimonial}
+                    delay={index * 0.2}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        </Suspense>
+
+        {/* Final CTA Section */}
+        <section className="py-24 bg-white relative overflow-hidden">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
+                ¿Listo para Alcanzar la{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                  Excelencia Académica
                 </span>
                 ?
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Transformamos tu experiencia académica con soluciones
-                personalizadas y resultados excepcionales
+              <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+                No dejes que los desafíos académicos te detengan. Únete a miles
+                de estudiantes que ya han transformado su experiencia educativa.
               </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <FeatureCard key={index} {...feature} delay={index * 0.1} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works Section */}
-        <section className="py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Proceso Simple y Efectivo
-              </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                En tres pasos sencillos, transformamos tus desafíos en éxitos
-                académicos
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-              {/* Línea conectora para desktop */}
-              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 transform -translate-y-1/2" />
-
-              {steps.map((step, index) => (
-                <StepCard
-                  key={index}
-                  {...step}
-                  number={index + 1}
-                  delay={index * 0.2}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* University Slider */}
-        <UniversitySlider />
-
-        {/* Testimonials Section */}
-        <section className="py-24 bg-gradient-to-br from-blue-900 to-purple-900 relative overflow-hidden">
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]" />
-          </div>
-
-          <div className="container mx-auto px-4 relative">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Voces de Éxito
-              </h2>
-              <p className="text-xl text-gray-200 max-w-2xl mx-auto">
-                Descubre lo que nuestros estudiantes dicen sobre su experiencia
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <TestimonialCard
-                  key={index}
-                  {...testimonial}
-                  delay={index * 0.2}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      </Suspense>
-
-      {/* Final CTA Section */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
-              ¿Listo para Alcanzar la{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                Excelencia Académica
-              </span>
-              ?
-            </h2>
-            <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-              No dejes que los desafíos académicos te detengan. Únete a miles de
-              estudiantes que ya han transformado su experiencia educativa.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Link
-                to="/cotizar"
-                className="group flex items-center justify-center px-8 py-4 rounded-full
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <Link
+                  to="/cotizar"
+                  className="group flex items-center justify-center px-8 py-4 rounded-full
                          bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold
                          transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-              >
-                <Calculator className="mr-2 h-5 w-5" />
-                Comienza Tu Proyecto
-                <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
-              </Link>
-              <a
-                aria-label="Contactar por WhatsApp"
-                href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center px-8 py-4 rounded-full
+                >
+                  <Calculator className="mr-2 h-5 w-5" />
+                  Comienza Tu Proyecto
+                  <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
+                </Link>
+                <a
+                  aria-label="Contactar por WhatsApp"
+                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center px-8 py-4 rounded-full
                          bg-green-500 text-white font-semibold
                          transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-              >
-                <FaWhatsapp className="mr-2 h-5 w-5" />
-                Contacta con Nosotros
-              </a>
+                >
+                  <FaWhatsapp className="mr-2 h-5 w-5" />
+                  Contacta con Nosotros
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+      <PromotionalBanner />
+    </>
   );
 };
 

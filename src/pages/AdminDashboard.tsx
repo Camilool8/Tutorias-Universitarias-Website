@@ -1,9 +1,18 @@
+// AdminDashboard.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, FileText, BarChart2, Mail, AlertCircle } from "lucide-react";
+import {
+  LogOut,
+  FileText,
+  BarChart2,
+  Mail,
+  AlertCircle,
+  PieChartIcon as ChartPieIcon,
+} from "lucide-react";
 import SubmissionsList from "../components/SubmissionsList";
 import Analytics from "../components/Analytics";
 import LeadsList from "../components/LeadsList";
+import LeadsAnalytics from "../components/LeadsAnalytics"; // Importamos el nuevo componente
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("solicitudes");
@@ -43,7 +52,7 @@ const AdminDashboard: React.FC = () => {
             <span>{error}</span>
           </div>
         )}
-        <div className="flex mb-6 space-x-4">
+        <div className="flex flex-wrap mb-6 space-x-4 justify-start">
           <TabButton
             active={activeTab === "solicitudes"}
             onClick={() => setActiveTab("solicitudes")}
@@ -62,10 +71,19 @@ const AdminDashboard: React.FC = () => {
             icon={<Mail size={18} />}
             text="Leads"
           />
+          <TabButton
+            active={activeTab === "leads-analytics"}
+            onClick={() => setActiveTab("leads-analytics")}
+            icon={<ChartPieIcon size={18} />}
+            text="Análisis de Leads"
+          />
         </div>
+
+        {/* Contenido de las pestañas */}
         {activeTab === "solicitudes" && <SubmissionsList setError={setError} />}
         {activeTab === "analiticas" && <Analytics setError={setError} />}
         {activeTab === "leads" && <LeadsList setError={setError} />}
+        {activeTab === "leads-analytics" && <LeadsAnalytics />}
       </div>
     </div>
   );
@@ -78,7 +96,7 @@ const TabButton: React.FC<{
   text: string;
 }> = ({ active, onClick, icon, text }) => (
   <button
-    className={`flex items-center px-4 py-2 rounded-lg transition duration-300 ease-in-out ${
+    className={`flex items-center px-4 py-2 mb-4 rounded-lg transition duration-300 ease-in-out ${
       active
         ? "bg-indigo-600 text-white"
         : "bg-white text-indigo-600 hover:bg-indigo-100"
