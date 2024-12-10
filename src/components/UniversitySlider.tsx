@@ -31,7 +31,7 @@ const UniversitySlider = () => {
     {
       name: "INTEC",
       fullName: "Instituto Tecnológico de Santo Domingo",
-      logo: "https://www.access-caribbean.eu/sites/default/files/styles/large/public/2020-02/12%20logo-intec.png?itok=kv9g9nX5",
+      logo: "https://repositoriobiblioteca.intec.edu.do/assets/intec/images/default-community.png",
       country: "República Dominicana",
       url: "https://www.intec.edu.do/",
     },
@@ -87,7 +87,7 @@ const UniversitySlider = () => {
     {
       name: "UCE",
       fullName: "Universidad Central del Este",
-      logo: "https://www.access-caribbean.eu/sites/default/files/styles/large/public/2020-02/14%20UCE.png?itok=3uXs6juk",
+      logo: "https://w7.pngwing.com/pngs/294/978/png-transparent-universidad-central-del-este-universidad-nacional-pedro-henriquez-urena-central-university-of-ecuador-higher-education-fact-text-logo-university.png",
       country: "República Dominicana",
       url: "https://www.uce.edu.do/",
     },
