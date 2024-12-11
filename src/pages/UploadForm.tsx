@@ -15,13 +15,18 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import PageTransition from "../components/PageTransition";
+import countriesData from "../data/countries.json";
 import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
 const UploadForm = () => {
   const location = useLocation();
+  const [countries] = useState(() => {
+    return countriesData
+      .map((country) => country.name.common)
+      .sort((a, b) => a.localeCompare(b));
+  });
   const { location: geoLocation } = useGeolocation();
   const [activeTab, setActiveTab] = useState("general");
-  const [countries, setCountries] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: "", message: "" });
   const [documentCount, setDocumentCount] = useState(1);
@@ -34,27 +39,6 @@ const UploadForm = () => {
     phoneNumber: "",
   });
 
-  const fetchCountries = async () => {
-    try {
-      setIsSubmitting(true);
-      const response = await fetch("https://restcountries.com/v3.1/all");
-      const data = await response.json();
-      const sortedCountries = data
-        .map((country) => country.name.common)
-        .sort((a, b) => a.localeCompare(b));
-      setCountries(sortedCountries);
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-      setSubmitStatus({
-        type: "error",
-        message:
-          "Error al cargar la lista de países. Por favor, recarga la página.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   useEffect(() => {
     const state = location.state as { selectedService?: string };
     if (state?.selectedService) {
@@ -63,7 +47,6 @@ const UploadForm = () => {
         subject: state.selectedService,
       }));
     }
-    fetchCountries();
   }, [location]);
 
   const handleChange = (
