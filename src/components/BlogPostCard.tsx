@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Calendar, Clock, Eye, Tag, BookOpen } from "lucide-react";
+import { Calendar, Clock, Tag, BookOpen } from "lucide-react";
 
 const BlogPostCard = ({ post, index, onTagClick }) => {
   return (
@@ -9,31 +9,47 @@ const BlogPostCard = ({ post, index, onTagClick }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col group"
+      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden"
     >
-      {/* Imagen destacada */}
+      {/* Imagen del Post */}
       <Link
         to={`/blog/${post.slug}`}
-        className="block relative overflow-hidden h-48"
+        className="block relative overflow-hidden aspect-[16/9]"
       >
         {post.featured_image ? (
           <img
             src={post.featured_image}
             alt={post.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-            <BookOpen size={48} className="text-indigo-300" />
+          <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
+            <BookOpen size={48} className="text-indigo-200" />
           </div>
+        )}
+        {/* Categoría como badge sobre la imagen */}
+        {post.category && (
+          <Link
+            to={`/blog`}
+            onClick={(e) => {
+              e.preventDefault();
+              onTagClick({ slug: post.category.slug });
+            }}
+            className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm 
+                       px-3 py-1.5 rounded-full text-sm font-medium text-indigo-600 
+                       hover:bg-white transition-colors duration-300"
+          >
+            {post.category.name}
+          </Link>
         )}
       </Link>
 
-      <div className="p-6 flex-grow flex flex-col">
+      {/* Contenido del Post */}
+      <div className="p-6 flex flex-col flex-grow">
         {/* Metadatos superiores */}
-        <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
+        <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
           <div className="flex items-center">
-            <Calendar size={14} className="mr-1" />
+            <Calendar size={14} className="mr-1.5" />
             {new Date(post.published_at).toLocaleDateString("es-ES", {
               year: "numeric",
               month: "short",
@@ -41,62 +57,43 @@ const BlogPostCard = ({ post, index, onTagClick }) => {
             })}
           </div>
           <div className="flex items-center">
-            <Eye size={14} className="mr-1" />
-            {post.view_count || 0} vistas
+            <Clock size={14} className="mr-1.5" />
+            {post.reading_time || 5} min
           </div>
         </div>
 
-        {/* Título y extracto */}
+        {/* Título y Extracto */}
         <Link
           to={`/blog/${post.slug}`}
-          className="group-hover:text-indigo-600 transition-colors"
+          className="group-hover:text-indigo-600 transition-colors duration-300"
         >
-          <h2 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
+          <h2 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2">
             {post.title}
           </h2>
         </Link>
-        <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
+        <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
+          {post.excerpt}
+        </p>
 
-        {/* Categoría */}
-        {post.blog_categories && (
-          <div className="mb-4">
-            <Link
-              to={`/blog`}
-              onClick={(e) => {
-                e.preventDefault();
-                onTagClick({ slug: post.blog_categories.slug });
-              }}
-              className="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800"
-            >
-              <BookOpen size={14} className="mr-1" />
-              {post.blog_categories.name}
-            </Link>
+        {/* Footer con Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="mt-auto pt-4 border-t border-gray-100">
+            <div className="flex flex-wrap gap-1.5">
+              {post.tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => onTagClick(tag)}
+                  className="inline-flex items-center px-2.5 py-1 text-xs
+                           bg-gray-50 hover:bg-gray-100 text-gray-600
+                           rounded-lg transition-colors duration-300"
+                >
+                  <Tag size={10} className="mr-1 text-gray-400" />
+                  {tag.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
-
-        {/* Tags */}
-        {post.blog_tags && post.blog_tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-auto">
-            {post.blog_tags.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => onTagClick(tag)}
-                className="inline-flex items-center px-2 py-1 bg-gray-100 
-                         rounded-full text-xs text-gray-600 hover:bg-gray-200 
-                         transition-colors cursor-pointer"
-              >
-                <Tag size={12} className="mr-1" />
-                {tag.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Tiempo de lectura */}
-        <div className="mt-4 pt-4 border-t flex items-center text-sm text-gray-500">
-          <Clock size={14} className="mr-1" />
-          {post.reading_time || 5} min lectura
-        </div>
       </div>
     </motion.article>
   );

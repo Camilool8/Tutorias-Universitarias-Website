@@ -830,82 +830,89 @@ app.get("/api/blog/posts", verifyToken, async (req, res) => {
 // Endpoint público mejorado para el listado del blog
 app.get("/api/blog/posts/public", async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 9,
-      category,
-      tag,
-      search,
-      sortBy = "published_at",
-    } = req.query;
+    const { category, tag, search } = req.query;
 
-    const offset = (page - 1) * limit;
+    // Primera consulta: Obtenemos los IDs de los posts que cumplen con el filtro de tags
+    let postIds;
+    if (tag) {
+      const { data: taggedPosts, error: tagError } = await supabase
+        .from("blog_posts_tags")
+        .select("post_id, blog_tags!inner(slug)")
+        .eq("blog_tags.slug", tag);
 
-    // Construir la consulta base
+      if (tagError) throw tagError;
+
+      if (!taggedPosts?.length) {
+        return res.json({ posts: [] });
+      }
+
+      postIds = taggedPosts.map((p) => p.post_id);
+    }
+
+    // Segunda consulta: Obtenemos los posts con sus relaciones
     let query = supabase
       .from("blog_posts")
       .select(
         `
         *,
-        blog_categories (id, name, slug),
-        blog_tags (id, name, slug)
-      `,
-        { count: "exact" }
+        blog_categories (*),
+        blog_posts_tags (
+          blog_tags (*)
+        )
+      `
       )
       .eq("status", "published");
 
-    // Aplicar filtros si existen
+    // Si hay categoría, usamos inner join y filtramos
     if (category) {
-      query = query.eq("blog_categories.slug", category);
+      query = supabase
+        .from("blog_posts")
+        .select(
+          `
+          *,
+          blog_categories!inner (*),
+          blog_posts_tags (
+            blog_tags (*)
+          )
+        `
+        )
+        .eq("status", "published")
+        .eq("blog_categories.slug", category);
     }
 
-    if (tag) {
-      // Modificamos la manera de filtrar por tags
-      query = query.eq("blog_tags.slug", tag);
+    // Si hay IDs de posts filtrados por tag, los aplicamos
+    if (postIds) {
+      query = query.in("id", postIds);
     }
 
-    if (search) {
-      query = query.or(
-        `title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`
-      );
-    }
-
-    // Ordenar los resultados
-    query = query.order(sortBy === "views" ? "view_count" : "published_at", {
+    const { data: posts, error } = await query.order("created_at", {
       ascending: false,
     });
 
-    // Aplicar paginación
-    const {
-      data: posts,
-      error,
-      count,
-    } = await query.range(offset, offset + limit - 1);
-
     if (error) throw error;
 
-    // Procesar los resultados
-    const processedPosts = posts.map((post) => ({
-      ...post,
-      excerpt: post.excerpt || post.content.substring(0, 150) + "...",
-      reading_time: Math.ceil(
-        (post.content.trim().split(/\s+/).length || 0) / 200
-      ),
-    }));
+    const processedPosts =
+      posts?.map((post) => ({
+        ...post,
+        category: post.blog_categories,
+        // Corregimos el procesamiento de tags
+        tags:
+          post.blog_posts_tags
+            ?.map((pt) => ({
+              id: pt.blog_tags.id,
+              name: pt.blog_tags.name,
+              slug: pt.blog_tags.slug,
+            }))
+            .filter(Boolean) || [],
+      })) || [];
 
     res.json({
       posts: processedPosts,
-      totalPages: Math.ceil((count || 0) / limit),
-      currentPage: parseInt(page),
-      totalPosts: count,
-      hasMore: offset + posts.length < count,
+      activeFilters: { category, tag, search },
     });
   } catch (error) {
-    console.error("Error fetching public blog posts:", error);
-    res.status(500).json({
-      error: "Error al obtener los posts públicos",
-      details: error.message,
-    });
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: "Error al obtener los posts" });
   }
 });
 
@@ -914,21 +921,14 @@ app.get("/api/blog/posts/public/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
 
-    // Obtener el post con sus relaciones
     const { data: post, error } = await supabase
       .from("blog_posts")
       .select(
         `
         *,
-        blog_categories (
-          id,
-          name,
-          slug
-        ),
-        blog_tags (
-          id,
-          name,
-          slug
+        blog_categories (*),
+        blog_posts_tags (
+          blog_tags (*)
         )
       `
       )
@@ -947,12 +947,6 @@ app.get("/api/blog/posts/public/:slug", async (req, res) => {
       return res.status(404).json({ error: "Post no encontrado" });
     }
 
-    // Incrementar el contador de vistas
-    await supabase
-      .from("blog_posts")
-      .update({ view_count: (post.view_count || 0) + 1 })
-      .eq("id", post.id);
-
     // Procesar el post
     const processedPost = {
       ...post,
@@ -960,7 +954,14 @@ app.get("/api/blog/posts/public/:slug", async (req, res) => {
       reading_time: Math.ceil(
         (post.content.trim().split(/\s+/).length || 0) / 200
       ),
+      tags: post.blog_posts_tags.map((pt) => pt.blog_tags).filter(Boolean),
     };
+
+    // Incrementar contador de vistas
+    await supabase
+      .from("blog_posts")
+      .update({ view_count: (post.view_count || 0) + 1 })
+      .eq("id", post.id);
 
     res.json(processedPost);
   } catch (error) {
@@ -1113,27 +1114,13 @@ app.delete("/api/blog/posts/:id", verifyToken, async (req, res) => {
 // Gestión de Categorías
 app.get("/api/blog/categories", async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from("blog_categories")
-      .select(
-        `
-        id,
-        name,
-        slug,
-        description,
-        blog_posts (count)
-      `
-      )
-      .eq("blog_posts.status", "published");
+    const { data, error } = await supabase.rpc(
+      "get_categories_with_post_count"
+    );
 
     if (error) throw error;
 
-    const categories = data.map((category) => ({
-      ...category,
-      post_count: category.blog_posts[0]?.count || 0,
-    }));
-
-    res.json(categories);
+    res.json(data);
   } catch (error) {
     console.error("Error fetching categories:", error);
     res.status(500).json({ error: "Error al obtener las categorías" });
@@ -1218,33 +1205,31 @@ app.get("/api/blog/category/:slug", async (req, res) => {
 // Gestión de Tags
 app.get("/api/blog/tags", async (req, res) => {
   try {
-    // Primero obtenemos todos los tags
-    const { data: tags, error: tagsError } = await supabase.from("blog_tags")
-      .select(`
-        id,
-        name,
-        slug,
-        blog_posts_tags (
-          blog_posts (
+    // Primero obtenemos todos los tags con sus relaciones
+    const { data: tags, error } = await supabase
+      .from("blog_tags")
+      .select(
+        `
+        *,
+        blog_posts_tags!inner (
+          blog_posts!inner (
+            id,
             status
           )
         )
-      `);
+      `
+      )
+      .eq("blog_posts_tags.blog_posts.status", "published");
 
-    if (tagsError) throw tagsError;
+    if (error) throw error;
 
-    // Procesamos los tags para contar solo los posts publicados
-    const processedTags = tags
-      .map((tag) => ({
-        id: tag.id,
-        name: tag.name,
-        slug: tag.slug,
-        post_count:
-          tag.blog_posts_tags?.filter(
-            (relation) => relation.blog_posts?.status === "published"
-          ).length || 0,
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    // Procesamos los tags para obtener el conteo correcto
+    const processedTags = tags.map((tag) => ({
+      id: tag.id,
+      name: tag.name,
+      slug: tag.slug,
+      post_count: tag.blog_posts_tags.length,
+    }));
 
     res.json(processedTags);
   } catch (error) {
@@ -1315,10 +1300,16 @@ app.post("/api/blog/posts", verifyToken, async (req, res) => {
   try {
     const { tags, ...postData } = req.body;
 
+    const dataToInsert = {
+      ...postData,
+      published_at:
+        postData.status === "published" ? new Date().toISOString() : null,
+    };
+
     // Crear el post
     const { data: post, error } = await supabase
       .from("blog_posts")
-      .insert(postData)
+      .insert(dataToInsert)
       .select()
       .single();
 
@@ -1503,34 +1494,27 @@ app.post("/api/blog/categories", verifyToken, async (req, res) => {
 // Gestión de Tags
 app.get("/api/blog/tags", async (req, res) => {
   try {
-    const { data: tags, error: tagsError } = await supabase
-      .from("blog_tags")
-      .select(
-        `
+    const { data: tags, error: tagsError } = await supabase.from("blog_tags")
+      .select(`
         id,
         name,
         slug,
-        blog_posts_tags!inner (
-          blog_posts!inner (
-            id,
-            status
-          )
+        blog_posts_tags!blog_posts_tags_tag_id_fkey (
+          count
         )
-      `
-      )
-      .eq("blog_posts.status", "published");
+      `);
 
     if (tagsError) throw tagsError;
 
-    // Process the tags
+    // Procesar los tags para obtener el conteo correcto
     const processedTags = tags
       .map((tag) => ({
         id: tag.id,
         name: tag.name,
         slug: tag.slug,
-        post_count: tag.blog_posts_tags?.length || 0,
+        post_count: tag.blog_posts_tags?.[0]?.count || 0,
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => b.post_count - a.post_count); // Ordenar por cantidad de posts
 
     res.json(processedTags);
   } catch (error) {

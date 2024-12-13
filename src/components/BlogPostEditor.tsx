@@ -12,9 +12,8 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
     meta_description: "",
     featured_image: "",
     category_id: "",
-    tags: [],
+    tags: post?.blog_posts_tags?.map((pt) => pt.blog_tags.id) || [],
     status: "draft",
-    slug: "",
     ...post,
   });
   const [saving, setSaving] = useState(false);
@@ -158,35 +157,72 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
     if (!newTag.trim()) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch("/api/blog/tags", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: newTag,
-          slug: newTag
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/(^-|-$)/g, ""),
-        }),
-      });
+      // Primero verificamos si el tag ya existe
+      const { data: existingTags, error: searchError } = await supabase
+        .from("blog_tags")
+        .select("id, name, slug")
+        .eq("name", newTag.trim())
+        .single();
 
-      if (!response.ok) throw new Error("Error al crear el tag");
+      if (searchError && searchError.code !== "PGRST116") {
+        throw searchError;
+      }
 
-      const tag = await response.json();
-      setTags([...tags, tag]);
+      // Si el tag existe, lo usamos
+      if (existingTags) {
+        setTags((prevTags) => {
+          if (!prevTags.find((t) => t.id === existingTags.id)) {
+            return [...prevTags, existingTags];
+          }
+          return prevTags;
+        });
+        setFormData((prev) => ({
+          ...prev,
+          tags: [...prev.tags, existingTags.id],
+        }));
+        setNewTag("");
+        return;
+      }
+
+      // Si no existe, creamos uno nuevo
+      const slug = newTag
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-");
+
+      const { data: newTagData, error } = await supabase
+        .from("blog_tags")
+        .insert({
+          name: newTag.trim(),
+          slug: slug,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Actualizamos los estados
+      setTags((prevTags) => [...prevTags, newTagData]);
       setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, tag.id],
+        tags: [...prev.tags, newTagData.id],
       }));
       setNewTag("");
     } catch (err) {
+      console.error("Error creating tag:", err);
       setError("Error al crear el tag");
     }
   };
+
+  useEffect(() => {
+    if (post?.blog_posts_tags) {
+      const initialTags = post.blog_posts_tags
+        .map((pt) => pt.blog_tags)
+        .filter(Boolean);
+      setTags(initialTags);
+    }
+  }, [post]);
 
   return (
     <motion.div

@@ -31,9 +31,9 @@ const BlogList = () => {
       setLoading(true);
       const params = new URLSearchParams();
 
-      if (filters.search) params.append("search", filters.search);
       if (filters.category) params.append("category", filters.category);
       if (filters.tag) params.append("tag", filters.tag);
+      if (filters.search) params.append("search", filters.search);
 
       const response = await fetch(`/api/blog/posts/public?${params}`);
       if (!response.ok) throw new Error("Error al cargar los posts");

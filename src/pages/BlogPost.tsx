@@ -161,26 +161,23 @@ const BlogPost = () => {
               </div>
 
               {/* Tags */}
-              {post.blog_tags && post.blog_tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {post.blog_tags.map((tag) => (
-                    <Link
-                      key={tag.id}
-                      to={`/blog`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate("/blog", { state: { tag: tag.slug } });
-                      }}
-                      className="inline-flex items-center px-3 py-1 bg-gray-100 
-                     rounded-full text-sm text-gray-600 hover:bg-gray-200 
-                     transition-colors"
-                    >
-                      <Tag size={14} className="mr-1" />
-                      {tag.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              {post.tags &&
+                post.tags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    to="/blog"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate("/blog", { state: { tag: tag.slug } });
+                    }}
+                    className="inline-flex items-center px-3 py-1 bg-gray-100 
+               rounded-full text-sm text-gray-600 hover:bg-gray-200 
+               transition-colors"
+                  >
+                    <Tag size={14} className="mr-1" />
+                    {tag.name}
+                  </Link>
+                ))}
             </div>
 
             {/* Contenido del post */}
