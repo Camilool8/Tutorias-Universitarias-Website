@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Save, X, Tag, Plus } from "lucide-react";
+import { Save, X, Tag, Plus, AlertCircle } from "lucide-react";
 import MDEditor from "@uiw/react-md-editor";
 
 const BlogPostEditor = ({ post, onClose, onSave }) => {
@@ -14,6 +14,7 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
     category_id: "",
     tags: [],
     status: "draft",
+    slug: "",
     ...post,
   });
   const [saving, setSaving] = useState(false);
@@ -36,7 +37,8 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
 
       const token = localStorage.getItem("adminToken");
 
-      // Primero guardamos el post
+      const slug = generateSlug(formData.title);
+
       const postResponse = await fetch(
         post?.id ? `/api/blog/posts/${post.id}` : "/api/blog/posts",
         {
@@ -47,6 +49,7 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
           },
           body: JSON.stringify({
             ...formData,
+            slug,
             tags: undefined,
           }),
         }
@@ -55,7 +58,6 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
       if (!postResponse.ok) throw new Error("Error al guardar el post");
       const savedPost = await postResponse.json();
 
-      // Luego actualizamos los tags
       const tagsResponse = await fetch(`/api/blog/posts/${savedPost.id}/tags`, {
         method: "POST",
         headers: {
@@ -75,6 +77,14 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .substring(0, 200);
   };
 
   useEffect(() => {
