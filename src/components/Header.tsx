@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Calculator,
   Menu,
   X,
-  Home,
-  Info,
-  Briefcase,
+  HomeIcon,
+  Users,
+  GraduationCap,
   HelpCircle,
-  Bookmark,
+  ShieldCheck,
+  BookOpen,
 } from "lucide-react";
 
 const Header: React.FC = () => {
@@ -16,10 +17,20 @@ const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const navigation = [
+    { path: "/", icon: <HomeIcon size={18} />, label: "Inicio" },
+    { path: "/about", icon: <Users size={18} />, label: "Sobre Nosotros" },
+    {
+      path: "/services",
+      icon: <GraduationCap size={18} />,
+      label: "Servicios",
+    },
+    { path: "/turnitin", icon: <ShieldCheck size={18} />, label: "Turnitin" },
+    { path: "/contact", icon: <HelpCircle size={18} />, label: "FAQ" },
+    { path: "/blog", icon: <BookOpen size={18} />, label: "Blog" },
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,103 +71,83 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white transition-shadow duration-300 ease-in-out ${
-        isScrolled ? "shadow-md" : ""
+      className={`fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white transition-all duration-300 ${
+        isScrolled ? "shadow-lg" : ""
       }`}
     >
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
           <Link
             to="/"
-            className="flex items-center space-x-2 text-2xl font-bold"
+            className="flex items-center space-x-2 font-bold transition-transform hover:scale-105"
           >
-            <img src="/images/logo.svg" alt="Logo" width={45} height={45} />
-            <span className="hidden sm:inline">Tutorías Universitarias</span>
+            <img
+              src="/images/logo.svg"
+              alt="Logo"
+              className="w-10 h-10 sm:w-12 sm:h-12"
+            />
+            <span className="hidden sm:inline text-lg sm:text-xl">
+              Tutorías Universitarias
+            </span>
           </Link>
-          <nav className="hidden lg:flex space-x-4">
-            <NavLink to="/" icon={<Home size={18} />} text="Inicio" />
-            <NavLink
-              to="/about"
-              icon={<Info size={18} />}
-              text="Sobre Nosotros"
-            />
-            <NavLink
-              to="/services"
-              icon={<Briefcase size={18} />}
-              text="Servicios"
-            />
-            <NavLink
-              to="/turnitin"
-              icon={<Bookmark size={18} />}
-              text="Turnitin"
-            />
-            <NavLink to="/contact" icon={<HelpCircle size={18} />} text="FAQ" />
-          </nav>
-          <div className="hidden lg:block">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                icon={item.icon}
+                text={item.label}
+                isActive={location.pathname === item.path}
+              />
+            ))}
             <Link
               to="/cotizar"
-              className="flex items-center space-x-1 bg-yellow-400 text-blue-800 px-4 py-2 rounded-full hover:bg-yellow-300 transition-colors"
+              className="ml-4 flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition-all transform hover:scale-105 bg-yellow-400 text-blue-800 hover:bg-yellow-300"
             >
               <Calculator size={18} />
-              <span>Cotiza Con Nosotros</span>
+              <span>Cotizar</span>
             </Link>
-          </div>
+          </nav>
+
+          {/* Mobile Menu Button */}
           <button
             ref={buttonRef}
-            id="toggle-menu"
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={isMenuOpen}
-            className="lg:hidden text-white focus:outline-none"
-            onClick={toggleMenu}
+            className="lg:hidden p-2 rounded-lg hover:bg-opacity-10 hover:bg-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Menu"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Navigation */}
       <div
         ref={menuRef}
-        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        } bg-gradient-to-r from-blue-600 to-purple-600`}
+        className={`lg:hidden overflow-hidden transition-all duration-300 ${
+          isMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+        }`}
       >
-        <nav className="flex flex-col items-center space-y-4 py-4">
-          <NavLink
-            to="/"
-            icon={<Home size={18} />}
-            text="Inicio"
-            onClick={() => setIsMenuOpen(false)}
-          />
-          <NavLink
-            to="/about"
-            icon={<Info size={18} />}
-            text="Sobre Nosotros"
-            onClick={() => setIsMenuOpen(false)}
-          />
-          <NavLink
-            to="/services"
-            icon={<Briefcase size={18} />}
-            text="Servicios"
-            onClick={() => setIsMenuOpen(false)}
-          />
-          <NavLink
-            to="/turnitin"
-            icon={<Bookmark size={18} />}
-            text="Turnitin"
-            onClick={() => setIsMenuOpen(false)}
-          />
-          <NavLink
-            to="/contact"
-            icon={<HelpCircle size={18} />}
-            text="FAQ"
-            onClick={() => setIsMenuOpen(false)}
-          />
+        <nav className="container mx-auto px-4 py-4 space-y-2">
+          {navigation.map((item) => (
+            <MobileNavLink
+              key={item.path}
+              to={item.path}
+              icon={item.icon}
+              text={item.label}
+              isActive={location.pathname === item.path}
+              onClick={() => setIsMenuOpen(false)}
+            />
+          ))}
           <Link
             to="/cotizar"
-            className="flex items-center space-x-1 bg-yellow-400 text-blue-800 px-4 py-2 rounded-full hover:bg-yellow-300 transition-colors"
+            className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-yellow-400 text-blue-800 font-medium hover:bg-yellow-300 transition-colors"
             onClick={() => setIsMenuOpen(false)}
           >
             <Calculator size={18} />
-            <span>Cotiza Con Nosotros</span>
+            <span>Cotizar</span>
           </Link>
         </nav>
       </div>
@@ -168,15 +159,39 @@ const NavLink: React.FC<{
   to: string;
   icon: React.ReactNode;
   text: string;
-  onClick?: () => void;
-}> = ({ to, icon, text, onClick }) => (
+  isActive: boolean;
+}> = ({ to, icon, text, isActive }) => (
   <Link
     to={to}
-    className="flex items-center space-x-1 text-white hover:text-yellow-300 transition-colors px-2 py-1"
+    className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all ${
+      isActive
+        ? "bg-white bg-opacity-10 text-white"
+        : "text-white hover:bg-white hover:bg-opacity-10"
+    }`}
+  >
+    {icon}
+    <span className="font-medium">{text}</span>
+  </Link>
+);
+
+const MobileNavLink: React.FC<{
+  to: string;
+  icon: React.ReactNode;
+  text: string;
+  isActive: boolean;
+  onClick: () => void;
+}> = ({ to, icon, text, isActive, onClick }) => (
+  <Link
+    to={to}
+    className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
+      isActive
+        ? "bg-white bg-opacity-10 text-white"
+        : "text-white hover:bg-white hover:bg-opacity-5"
+    }`}
     onClick={onClick}
   >
     {icon}
-    <span>{text}</span>
+    <span className="font-medium">{text}</span>
   </Link>
 );
 

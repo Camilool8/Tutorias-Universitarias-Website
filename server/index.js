@@ -798,6 +798,798 @@ app.get("/api/analytics", verifyToken, async (req, res) => {
   }
 });
 
+// Blog Post Routes
+app.get("/api/blog/posts", verifyToken, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select(
+        `
+        *,
+        blog_categories (id, name, slug),
+        admins (id, username)
+      `
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    // Asegurarnos de que data es un array
+    const posts = Array.isArray(data) ? data : [];
+
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    res.status(500).json({
+      error: "Error al obtener los posts",
+      details: error.message,
+    });
+  }
+});
+
+// Endpoint público mejorado para el listado del blog
+app.get("/api/blog/posts/public", async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 9,
+      category,
+      tag,
+      search,
+      sortBy = "published_at",
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+
+    // Construir la consulta base
+    let query = supabase
+      .from("blog_posts")
+      .select(
+        `
+        *,
+        blog_categories (id, name, slug),
+        blog_tags (id, name, slug)
+      `,
+        { count: "exact" }
+      )
+      .eq("status", "published");
+
+    // Aplicar filtros si existen
+    if (category) {
+      query = query.eq("blog_categories.slug", category);
+    }
+
+    if (tag) {
+      // Modificamos la manera de filtrar por tags
+      query = query.eq("blog_tags.slug", tag);
+    }
+
+    if (search) {
+      query = query.or(
+        `title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`
+      );
+    }
+
+    // Ordenar los resultados
+    query = query.order(sortBy === "views" ? "view_count" : "published_at", {
+      ascending: false,
+    });
+
+    // Aplicar paginación
+    const {
+      data: posts,
+      error,
+      count,
+    } = await query.range(offset, offset + limit - 1);
+
+    if (error) throw error;
+
+    // Procesar los resultados
+    const processedPosts = posts.map((post) => ({
+      ...post,
+      excerpt: post.excerpt || post.content.substring(0, 150) + "...",
+      reading_time: Math.ceil(
+        (post.content.trim().split(/\s+/).length || 0) / 200
+      ),
+    }));
+
+    res.json({
+      posts: processedPosts,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: parseInt(page),
+      totalPosts: count,
+      hasMore: offset + posts.length < count,
+    });
+  } catch (error) {
+    console.error("Error fetching public blog posts:", error);
+    res.status(500).json({
+      error: "Error al obtener los posts públicos",
+      details: error.message,
+    });
+  }
+});
+
+// Endpoint para obtener un post individual por slug
+app.get("/api/blog/posts/public/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    // Obtener el post con sus relaciones
+    const { data: post, error } = await supabase
+      .from("blog_posts")
+      .select(
+        `
+        *,
+        blog_categories (
+          id,
+          name,
+          slug
+        ),
+        blog_tags (
+          id,
+          name,
+          slug
+        )
+      `
+      )
+      .eq("slug", slug)
+      .eq("status", "published")
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return res.status(404).json({ error: "Post no encontrado" });
+      }
+      throw error;
+    }
+
+    if (!post) {
+      return res.status(404).json({ error: "Post no encontrado" });
+    }
+
+    // Incrementar el contador de vistas
+    await supabase
+      .from("blog_posts")
+      .update({ view_count: (post.view_count || 0) + 1 })
+      .eq("id", post.id);
+
+    // Procesar el post
+    const processedPost = {
+      ...post,
+      excerpt: post.excerpt || post.content.substring(0, 150) + "...",
+      reading_time: Math.ceil(
+        (post.content.trim().split(/\s+/).length || 0) / 200
+      ),
+    };
+
+    res.json(processedPost);
+  } catch (error) {
+    console.error("Error fetching blog post:", error);
+    res.status(500).json({
+      error: "Error al obtener el post",
+      details: error.message,
+    });
+  }
+});
+
+// Incrementar el contador de vistas de un post
+app.post("/api/blog/posts/:id/view", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Incrementar el contador de vistas
+    const { data, error } = await supabase.rpc("increment_view_count", {
+      post_id: id,
+    });
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
+    res
+      .status(500)
+      .json({ error: "Error al actualizar el contador de vistas" });
+  }
+});
+
+// Actualización de Posts
+app.put("/api/blog/posts/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      content,
+      category_id,
+      tags,
+      featured_image,
+      excerpt,
+      meta_title,
+      meta_description,
+      keywords,
+      status,
+    } = req.body;
+
+    // Verificar propiedad del post o rol de administrador
+    const { data: existingPost, error: fetchError } = await supabase
+      .from("blog_posts")
+      .select("author_id, status")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!existingPost) {
+      return res.status(404).json({ error: "Post no encontrado" });
+    }
+
+    // Preparar datos de actualización
+    const updateData = {
+      title,
+      content,
+      excerpt,
+      featured_image,
+      meta_title,
+      meta_description,
+      keywords,
+      category_id,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Si el estado cambia a publicado, establecer published_at
+    if (status === "published" && existingPost.status !== "published") {
+      updateData.published_at = new Date().toISOString();
+    }
+    updateData.status = status;
+
+    // Actualizar el post
+    const { data: updatedPost, error: updateError } = await supabase
+      .from("blog_posts")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    // Actualizar tags si se proporcionan
+    if (tags) {
+      // Eliminar asociaciones existentes
+      await supabase.from("blog_posts_tags").delete().eq("post_id", id);
+
+      // Crear nuevas asociaciones
+      if (tags.length > 0) {
+        const tagAssociations = tags.map((tag_id) => ({
+          post_id: id,
+          tag_id,
+        }));
+
+        const { error: tagError } = await supabase
+          .from("blog_posts_tags")
+          .insert(tagAssociations);
+
+        if (tagError) throw tagError;
+      }
+    }
+
+    res.json(updatedPost);
+  } catch (error) {
+    console.error("Error updating blog post:", error);
+    res.status(500).json({ error: "Error al actualizar el post" });
+  }
+});
+
+// Eliminación de Posts
+app.delete("/api/blog/posts/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar existencia y propiedad
+    const { data: post, error: fetchError } = await supabase
+      .from("blog_posts")
+      .select("author_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!post) {
+      return res.status(404).json({ error: "Post no encontrado" });
+    }
+
+    // Eliminar el post (las asociaciones de tags se eliminarán automáticamente por la restricción ON DELETE CASCADE)
+    const { error: deleteError } = await supabase
+      .from("blog_posts")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    res.json({ message: "Post eliminado correctamente" });
+  } catch (error) {
+    console.error("Error deleting blog post:", error);
+    res.status(500).json({ error: "Error al eliminar el post" });
+  }
+});
+
+// Gestión de Categorías
+app.get("/api/blog/categories", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("blog_categories")
+      .select(
+        `
+        id,
+        name,
+        slug,
+        description,
+        blog_posts (count)
+      `
+      )
+      .eq("blog_posts.status", "published");
+
+    if (error) throw error;
+
+    const categories = data.map((category) => ({
+      ...category,
+      post_count: category.blog_posts[0]?.count || 0,
+    }));
+
+    res.json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ error: "Error al obtener las categorías" });
+  }
+});
+
+app.post("/api/blog/categories", verifyToken, async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+
+    const { data: category, error } = await supabase
+      .from("blog_categories")
+      .insert({ name, description, slug })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(category);
+  } catch (error) {
+    console.error("Error creating category:", error);
+    res.status(500).json({ error: "Error al crear la categoría" });
+  }
+});
+
+// Endpoint para obtener posts por categoría
+app.get("/api/blog/category/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Primero verificamos que la categoría existe
+    const { data: category, error: categoryError } = await supabase
+      .from("blog_categories")
+      .select("id")
+      .eq("slug", slug)
+      .single();
+
+    if (categoryError || !category) {
+      return res.status(404).json({ error: "Categoría no encontrada" });
+    }
+
+    // Obtenemos los posts de esa categoría
+    const {
+      data: posts,
+      error,
+      count,
+    } = await supabase
+      .from("blog_posts")
+      .select(
+        `
+        *,
+        blog_categories!inner (id, name, slug),
+        blog_tags (id, name, slug)
+      `,
+        { count: "exact" }
+      )
+      .eq("status", "published")
+      .eq("blog_categories.slug", slug)
+      .order("published_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw error;
+
+    res.json({
+      posts: Array.isArray(posts) ? posts : [],
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      totalPosts: count,
+      category: category,
+    });
+  } catch (error) {
+    console.error("Error fetching posts by category:", error);
+    res.status(500).json({ error: "Error al obtener los posts por categoría" });
+  }
+});
+
+// Gestión de Tags
+app.get("/api/blog/tags", async (req, res) => {
+  try {
+    // Primero obtenemos todos los tags
+    const { data: tags, error: tagsError } = await supabase.from("blog_tags")
+      .select(`
+        id,
+        name,
+        slug,
+        blog_posts_tags (
+          blog_posts (
+            status
+          )
+        )
+      `);
+
+    if (tagsError) throw tagsError;
+
+    // Procesamos los tags para contar solo los posts publicados
+    const processedTags = tags
+      .map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug,
+        post_count:
+          tag.blog_posts_tags?.filter(
+            (relation) => relation.blog_posts?.status === "published"
+          ).length || 0,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    res.json(processedTags);
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ error: "Error al obtener los tags" });
+  }
+});
+
+// Endpoint para actualizar los tags de un post
+app.post("/api/blog/posts/:postId/tags", verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { tags } = req.body; // Array de IDs de tags
+
+    // Primero eliminamos las relaciones existentes
+    const { error: deleteError } = await supabase
+      .from("blog_posts_tags")
+      .delete()
+      .eq("post_id", postId);
+
+    if (deleteError) throw deleteError;
+
+    // Si hay nuevos tags, los insertamos
+    if (tags && tags.length > 0) {
+      const tagAssociations = tags.map((tagId) => ({
+        post_id: postId,
+        tag_id: tagId,
+      }));
+
+      const { error: insertError } = await supabase
+        .from("blog_posts_tags")
+        .insert(tagAssociations);
+
+      if (insertError) throw insertError;
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error updating post tags:", error);
+    res.status(500).json({ error: "Error al actualizar los tags del post" });
+  }
+});
+
+app.post("/api/blog/tags", verifyToken, async (req, res) => {
+  try {
+    const { name } = req.body;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+
+    const { data: tag, error } = await supabase
+      .from("blog_tags")
+      .insert({ name, slug })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(tag);
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    res.status(500).json({ error: "Error al crear el tag" });
+  }
+});
+
+// Admin Routes - Protegidas con verifyToken
+app.post("/api/blog/posts", verifyToken, async (req, res) => {
+  try {
+    const { tags, ...postData } = req.body;
+
+    // Crear el post
+    const { data: post, error } = await supabase
+      .from("blog_posts")
+      .insert(postData)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Crear las asociaciones de tags
+    if (tags && tags.length > 0) {
+      const tagAssociations = tags.map((tagId) => ({
+        post_id: post.id,
+        tag_id: tagId,
+      }));
+
+      const { error: tagError } = await supabase
+        .from("blog_posts_tags")
+        .insert(tagAssociations);
+
+      if (tagError) throw tagError;
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error("Error creating blog post:", error);
+    res.status(500).json({ error: "Error al crear el post" });
+  }
+});
+
+// Actualización de Posts
+app.put("/api/blog/posts/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      content,
+      category_id,
+      tags,
+      featured_image,
+      excerpt,
+      meta_title,
+      meta_description,
+      keywords,
+      status,
+    } = req.body;
+
+    // Verificar propiedad del post o rol de administrador
+    const { data: existingPost, error: fetchError } = await supabase
+      .from("blog_posts")
+      .select("author_id, status")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!existingPost) {
+      return res.status(404).json({ error: "Post no encontrado" });
+    }
+
+    // Preparar datos de actualización
+    const updateData = {
+      title,
+      content,
+      excerpt,
+      featured_image,
+      meta_title,
+      meta_description,
+      keywords,
+      category_id,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Si el estado cambia a publicado, establecer published_at
+    if (status === "published" && existingPost.status !== "published") {
+      updateData.published_at = new Date().toISOString();
+    }
+    updateData.status = status;
+
+    // Actualizar el post
+    const { data: updatedPost, error: updateError } = await supabase
+      .from("blog_posts")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    // Actualizar tags si se proporcionan
+    if (tags) {
+      // Eliminar asociaciones existentes
+      await supabase.from("blog_posts_tags").delete().eq("post_id", id);
+
+      // Crear nuevas asociaciones
+      if (tags.length > 0) {
+        const tagAssociations = tags.map((tag_id) => ({
+          post_id: id,
+          tag_id,
+        }));
+
+        const { error: tagError } = await supabase
+          .from("blog_posts_tags")
+          .insert(tagAssociations);
+
+        if (tagError) throw tagError;
+      }
+    }
+
+    res.json(updatedPost);
+  } catch (error) {
+    console.error("Error updating blog post:", error);
+    res.status(500).json({ error: "Error al actualizar el post" });
+  }
+});
+
+// Eliminación de Posts
+app.delete("/api/blog/posts/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar existencia y propiedad
+    const { data: post, error: fetchError } = await supabase
+      .from("blog_posts")
+      .select("author_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!post) {
+      return res.status(404).json({ error: "Post no encontrado" });
+    }
+
+    // Eliminar el post (las asociaciones de tags se eliminarán automáticamente por la restricción ON DELETE CASCADE)
+    const { error: deleteError } = await supabase
+      .from("blog_posts")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    res.json({ message: "Post eliminado correctamente" });
+  } catch (error) {
+    console.error("Error deleting blog post:", error);
+    res.status(500).json({ error: "Error al eliminar el post" });
+  }
+});
+
+// Gestión de Categorías
+app.get("/api/blog/categories", async (req, res) => {
+  try {
+    const { data: categories, error } = await supabase
+      .from("blog_categories")
+      .select("*")
+      .order("name");
+
+    if (error) throw error;
+    res.json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ error: "Error al obtener las categorías" });
+  }
+});
+
+app.post("/api/blog/categories", verifyToken, async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+
+    const { data: category, error } = await supabase
+      .from("blog_categories")
+      .insert({ name, description, slug })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(category);
+  } catch (error) {
+    console.error("Error creating category:", error);
+    res.status(500).json({ error: "Error al crear la categoría" });
+  }
+});
+
+// Gestión de Tags
+app.get("/api/blog/tags", async (req, res) => {
+  try {
+    const { data: tags, error: tagsError } = await supabase
+      .from("blog_tags")
+      .select(
+        `
+        id,
+        name,
+        slug,
+        blog_posts_tags!inner (
+          blog_posts!inner (
+            id,
+            status
+          )
+        )
+      `
+      )
+      .eq("blog_posts.status", "published");
+
+    if (tagsError) throw tagsError;
+
+    // Process the tags
+    const processedTags = tags
+      .map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug,
+        post_count: tag.blog_posts_tags?.length || 0,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    res.json(processedTags);
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ error: "Error al obtener los tags" });
+  }
+});
+
+app.post("/api/blog/tags", verifyToken, async (req, res) => {
+  try {
+    const { name } = req.body;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+
+    const { data: tag, error } = await supabase
+      .from("blog_tags")
+      .insert({ name, slug })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(tag);
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    res.status(500).json({ error: "Error al crear el tag" });
+  }
+});
+
+// Función helper para generar slugs únicos
+async function generateUniqueSlug(title) {
+  const baseSlug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
+
+  let slug = baseSlug;
+  let counter = 1;
+  let exists = true;
+
+  while (exists) {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("slug")
+      .eq("slug", slug)
+      .single();
+
+    if (error || !data) {
+      exists = false;
+    } else {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+  }
+
+  return slug;
+}
+
 // app.patch("/api/leads/:id", verifyToken, async (req, res) => {
 //   try {
 //     const { error } = await supabase

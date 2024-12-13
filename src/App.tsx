@@ -27,6 +27,8 @@ const PromoPage = lazy(() => import("./pages/PromoPage"));
 const NotFound = lazy(() => import("./components/NotFound"));
 const EmailStatus = lazy(() => import("./pages/EmailStatus"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
+const BlogList = lazy(() => import("./pages/BlogList"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/cotizar" element={<UploadForm />} />
+                <Route path="/blog" element={<BlogList />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/turnitin" element={<Turnitin />} />
