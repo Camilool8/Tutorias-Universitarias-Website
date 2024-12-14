@@ -55,6 +55,11 @@ const BlogAdmin = () => {
     fetchPosts();
   }, []);
 
+  const handleEdit = (post) => {
+    setEditingPost(post);
+    setShowEditor(true);
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este post?")) {
       return;
@@ -208,10 +213,7 @@ const BlogAdmin = () => {
                   <PostRow
                     key={post.id}
                     post={post}
-                    onEdit={() => {
-                      setEditingPost(post);
-                      setShowEditor(true);
-                    }}
+                    onEdit={() => handleEdit(post)}
                     onDelete={() => handleDelete(post.id)}
                   />
                 ))}

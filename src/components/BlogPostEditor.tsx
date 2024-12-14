@@ -4,24 +4,63 @@ import { Save, X, Tag, Plus, AlertCircle } from "lucide-react";
 import MDEditor from "@uiw/react-md-editor";
 
 const BlogPostEditor = ({ post, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    excerpt: "",
-    meta_title: "",
-    meta_description: "",
-    featured_image: "",
-    category_id: "",
-    tags: post?.blog_posts_tags?.map((pt) => pt.blog_tags.id) || [],
-    status: "draft",
-    ...post,
+  const [formData, setFormData] = useState(() => {
+    const initialTags =
+      post?.blog_posts_tags?.map((pt) => pt.blog_tags.id) || [];
+
+    return {
+      title: "",
+      content: "",
+      excerpt: "",
+      meta_title: "",
+      meta_description: "",
+      featured_image: "",
+      category_id: "",
+      status: "draft",
+      ...post,
+      tags: initialTags,
+    };
   });
+  const [allTags, setAllTags] = useState([]);
+  const [originalTags, setOriginalTags] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [newTag, setNewTag] = useState("");
+
+  useEffect(() => {
+    const fetchAllTags = async () => {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch("/api/blog/tags", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al cargar los tags");
+        const data = await response.json();
+        setAllTags(data);
+      } catch (error) {
+        console.error("Error loading tags:", error);
+      }
+    };
+
+    fetchAllTags();
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (post?.blog_posts_tags) {
+      const postTagIds = post.blog_posts_tags.map((pt) => pt.blog_tags.id);
+
+      setOriginalTags(postTagIds);
+      setFormData((prev) => ({
+        ...prev,
+        tags: postTagIds,
+      }));
+    }
+  }, [post?.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,42 +74,47 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
       if (!formData.category_id) throw new Error("La categoría es requerida");
 
       const token = localStorage.getItem("adminToken");
+      const slug = post?.slug || generateSlug(formData.title);
+      const tagsToSend = Array.isArray(formData.tags) ? formData.tags : [];
+      const tagsHaveChanged =
+        JSON.stringify(originalTags.sort()) !==
+        JSON.stringify(tagsToSend.sort());
 
-      const slug = generateSlug(formData.title);
+      const requestBody = {
+        ...formData,
+        slug,
+        ...(tagsHaveChanged && { tags: tagsToSend }),
+      };
 
-      const postResponse = await fetch(
-        post?.id ? `/api/blog/posts/${post.id}` : "/api/blog/posts",
-        {
-          method: post?.id ? "PUT" : "POST",
+      // Si es un post existente (PUT)
+      if (post?.id) {
+        const response = await fetch(`/api/blog/posts/${post.id}`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            ...formData,
-            slug,
-            tags: undefined,
-          }),
-        }
-      );
+          body: JSON.stringify(requestBody),
+        });
 
-      if (!postResponse.ok) throw new Error("Error al guardar el post");
-      const savedPost = await postResponse.json();
+        if (!response.ok) throw new Error("Error al actualizar el post");
+        const updatedPost = await response.json();
+        onSave(updatedPost);
+      } else {
+        // Si es un nuevo post (POST)
+        const response = await fetch("/api/blog/posts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        });
 
-      const tagsResponse = await fetch(`/api/blog/posts/${savedPost.id}/tags`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          tags: formData.tags,
-        }),
-      });
-
-      if (!tagsResponse.ok) throw new Error("Error al guardar los tags");
-
-      onSave(savedPost);
+        if (!response.ok) throw new Error("Error al crear el post");
+        const newPost = await response.json();
+        onSave(newPost);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -86,11 +130,6 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
       .substring(0, 200);
   };
 
-  useEffect(() => {
-    fetchCategories();
-    fetchTags();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem("adminToken");
@@ -105,18 +144,20 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
     }
   };
 
-  const fetchTags = async () => {
-    try {
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch("/api/blog/tags", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error("Error al cargar los tags");
-      const data = await response.json();
-      setTags(data);
-    } catch (err) {
-      setError("Error al cargar los tags");
-    }
+  const handleTagToggle = (tagId) => {
+    setFormData((prev) => {
+      const currentTags = Array.isArray(prev.tags) ? prev.tags : [];
+      const isTagSelected = currentTags.includes(tagId);
+
+      const newTags = isTagSelected
+        ? currentTags.filter((id) => id !== tagId)
+        : [...currentTags, tagId];
+
+      return {
+        ...prev,
+        tags: newTags,
+      };
+    });
   };
 
   const handleAddCategory = async (e) => {
@@ -152,77 +193,90 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
     }
   };
 
-  const handleAddTag = async (e) => {
-    e.preventDefault();
+  const handleAddTag = async () => {
     if (!newTag.trim()) return;
 
     try {
-      // Primero verificamos si el tag ya existe
-      const { data: existingTags, error: searchError } = await supabase
-        .from("blog_tags")
-        .select("id, name, slug")
-        .eq("name", newTag.trim())
-        .single();
+      const response = await fetch("/api/blog/tags", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify({ name: newTag.trim() }),
+      });
 
-      if (searchError && searchError.code !== "PGRST116") {
-        throw searchError;
-      }
+      if (!response.ok) throw new Error("Error al crear el tag");
 
-      // Si el tag existe, lo usamos
-      if (existingTags) {
-        setTags((prevTags) => {
-          if (!prevTags.find((t) => t.id === existingTags.id)) {
-            return [...prevTags, existingTags];
-          }
-          return prevTags;
-        });
-        setFormData((prev) => ({
-          ...prev,
-          tags: [...prev.tags, existingTags.id],
-        }));
-        setNewTag("");
-        return;
-      }
+      const createdTag = await response.json();
 
-      // Si no existe, creamos uno nuevo
-      const slug = newTag
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-");
+      // Actualizar la lista de tags
+      setAllTags((prev) => [...prev, createdTag]);
 
-      const { data: newTagData, error } = await supabase
-        .from("blog_tags")
-        .insert({
-          name: newTag.trim(),
-          slug: slug,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Actualizamos los estados
-      setTags((prevTags) => [...prevTags, newTagData]);
+      // Seleccionar automáticamente el nuevo tag
       setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTagData.id],
+        tags: [...prev.tags, createdTag.id],
       }));
+
       setNewTag("");
     } catch (err) {
-      console.error("Error creating tag:", err);
       setError("Error al crear el tag");
     }
   };
 
-  useEffect(() => {
-    if (post?.blog_posts_tags) {
-      const initialTags = post.blog_posts_tags
-        .map((pt) => pt.blog_tags)
-        .filter(Boolean);
-      setTags(initialTags);
-    }
-  }, [post]);
+  const renderTags = () => (
+    <div className="flex flex-wrap gap-2">
+      {allTags.map((tag) => {
+        const currentTags = Array.isArray(formData.tags) ? formData.tags : [];
+        const isSelected = currentTags.includes(tag.id);
+        const wasOriginallySelected = originalTags.includes(tag.id);
+
+        return (
+          <motion.button
+            key={tag.id}
+            type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleTagToggle(tag.id)}
+            className={`
+            inline-flex items-center px-3 py-1.5 rounded-full text-sm 
+            transition-all duration-200 relative
+            ${
+              isSelected
+                ? "bg-indigo-100 text-indigo-800 border-2 border-indigo-300"
+                : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+            }
+          `}
+          >
+            <Tag
+              size={14}
+              className={`mr-1.5 ${
+                isSelected ? "text-indigo-600" : "text-gray-400"
+              }`}
+            />
+            <span>{tag.name}</span>
+
+            {/* Indicador de tag original */}
+            {wasOriginallySelected && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 rounded-full" />
+            )}
+
+            {tag.post_count > 0 && (
+              <span
+                className={`
+                ml-1.5 px-1.5 py-0.5 text-xs rounded-full
+                ${isSelected ? "bg-indigo-50" : "bg-gray-50"}
+              `}
+              >
+                {tag.post_count}
+              </span>
+            )}
+          </motion.button>
+        );
+      })}
+    </div>
+  );
 
   return (
     <motion.div
@@ -337,54 +391,74 @@ const BlogPostEditor = ({ post, onClose, onSave }) => {
                 </div>
               </div>
 
-              {/* Tags */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tags
-                </label>
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newTag}
-                      onChange={(e) => setNewTag(e.target.value)}
-                      placeholder="Nuevo tag"
-                      className="flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-indigo-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddTag}
-                      className="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm"
-                    >
-                      <Plus size={14} />
-                    </button>
+              {/* Sección de Tags */}
+              <div className="space-y-4">
+                {/* Header de la sección */}
+                <div className="flex justify-between items-center">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Tags
+                  </label>
+                  {post?.blog_posts_tags?.length > 0 && (
+                    <div className="flex items-center text-xs text-indigo-600">
+                      <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2" />
+                      Tags del post
+                    </div>
+                  )}
+                </div>
+
+                {/* Input para nuevo tag */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    placeholder="Agregar nuevo tag..."
+                    className="w-full px-4 py-2 pr-12 border rounded-lg 
+               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+               placeholder-gray-400 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddTag}
+                    disabled={!newTag.trim()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 
+               rounded-full hover:bg-gray-100 disabled:opacity-50
+               disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Plus size={16} className="text-indigo-600" />
+                  </button>
+                </div>
+
+                {/* Lista de tags */}
+                <div className="p-4 border rounded-lg bg-gray-50 min-h-[100px]">
+                  {allTags.length > 0 ? (
+                    renderTags()
+                  ) : (
+                    <div className="flex justify-center items-center h-24 text-gray-500 text-sm">
+                      No hay tags disponibles. Crea uno nuevo.
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer con contador y estadísticas */}
+                <div className="flex justify-between items-center text-sm">
+                  <div className="text-gray-600">
+                    {formData.tags.length} tag
+                    {formData.tags.length !== 1 && "s"} seleccionado
+                    {formData.tags.length !== 1 && "s"}
                   </div>
-                  <div className="flex flex-wrap gap-2 p-2 border rounded-lg bg-gray-50 min-h-[60px]">
-                    {tags.map((tag) => (
-                      <label
-                        key={tag.id}
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs cursor-pointer transition-colors ${
-                          formData.tags.includes(tag.id)
-                            ? "bg-indigo-100 text-indigo-800"
-                            : "bg-white text-gray-700 hover:bg-gray-100"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="hidden"
-                          checked={formData.tags.includes(tag.id)}
-                          onChange={(e) => {
-                            const newTags = e.target.checked
-                              ? [...formData.tags, tag.id]
-                              : formData.tags.filter((id) => id !== tag.id);
-                            setFormData((prev) => ({ ...prev, tags: newTags }));
-                          }}
-                        />
-                        <Tag size={12} className="mr-1" />
-                        {tag.name}
-                      </label>
-                    ))}
-                  </div>
+                  {post?.blog_posts_tags?.length > 0 &&
+                    formData.tags.length !== post.blog_posts_tags.length && (
+                      <div className="text-indigo-600">
+                        {formData.tags.length > post.blog_posts_tags.length
+                          ? `${
+                              formData.tags.length - post.blog_posts_tags.length
+                            } tags añadidos`
+                          : `${
+                              post.blog_posts_tags.length - formData.tags.length
+                            } tags removidos`}
+                      </div>
+                    )}
                 </div>
               </div>
 
