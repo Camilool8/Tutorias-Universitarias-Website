@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import SEO from "./shared/SEO";
 import { Home, Search, ArrowLeft } from "lucide-react";
 
 const NotFound: React.FC = () => {
@@ -14,10 +14,14 @@ const NotFound: React.FC = () => {
 
   return (
     <>
-      <Helmet>
-        <title>404 - Page Not Found</title>
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      <SEO
+        title="Página No Encontrada"
+        description="Lo sentimos, la página que buscas no existe. Explora nuestros servicios de tutoría y recursos académicos disponibles."
+        canonicalUrl="https://www.tutoriasuniversitarias.com/404"
+        ogType="website"
+      >
+        <meta name="robots" content="noindex,follow" />
+      </SEO>
 
       <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-lg w-full space-y-8 text-center">

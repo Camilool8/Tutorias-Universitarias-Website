@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 import compression from "compression";
 import nodemailer from "nodemailer";
 import rateLimit from "express-rate-limit";
+import NodeCache from "node-cache";
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ const emailLimiter = rateLimit({
   message:
     "Demasiadas solicitudes de envío de correo, por favor intente más tarde",
 });
+
+const sitemapCache = new NodeCache({ stdTTL: 3600 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -77,6 +80,99 @@ app.use(
     setHeaders: setCustomCacheControl,
   })
 );
+
+// Crawling routes
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const cachedSitemap = sitemapCache.get("sitemap");
+    if (cachedSitemap) {
+      res.header("Content-Type", "application/xml");
+      return res.send(cachedSitemap);
+    }
+    // Obtener todos los posts publicados
+    const { data: posts } = await supabase
+      .from("blog_posts")
+      .select("slug, updated_at")
+      .eq("status", "published");
+
+    // Crear el XML
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+    // Páginas estáticas
+    const staticPages = [
+      { url: "", priority: "1.0", changefreq: "daily" },
+      { url: "services", priority: "0.8", changefreq: "weekly" },
+      { url: "about", priority: "0.7", changefreq: "monthly" },
+      { url: "contact", priority: "0.7", changefreq: "monthly" },
+      { url: "turnitin", priority: "0.8", changefreq: "weekly" },
+      { url: "cotizar", priority: "0.9", changefreq: "daily" },
+      { url: "blog", priority: "0.8", changefreq: "daily" },
+    ];
+
+    // Agregar páginas estáticas
+    staticPages.forEach((page) => {
+      xml += `  <url>\n`;
+      xml += `    <loc>https://www.tutoriasuniversitarias.com/${page.url}</loc>\n`;
+      xml += `    <lastmod>${
+        new Date().toISOString().split("T")[0]
+      }</lastmod>\n`;
+      xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
+      xml += `    <priority>${page.priority}</priority>\n`;
+      xml += `  </url>\n`;
+    });
+
+    // Agregar posts del blog
+    if (posts) {
+      posts.forEach((post) => {
+        xml += `  <url>\n`;
+        xml += `    <loc>https://www.tutoriasuniversitarias.com/blog/${post.slug}</loc>\n`;
+        xml += `    <lastmod>${new Date(
+          post.updated_at
+        ).toISOString()}</lastmod>\n`;
+        xml += `    <changefreq>monthly</changefreq>\n`;
+        xml += `    <priority>0.6</priority>\n`;
+        xml += `  </url>\n`;
+      });
+    }
+
+    xml += "</urlset>";
+
+    sitemapCache.set("sitemap", xml);
+    // Configurar headers y enviar respuesta
+    res.header("Content-Type", "application/xml");
+    res.header("Content-Length", Buffer.byteLength(xml));
+    res.send(xml);
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+    res.status(500).send("Error generating sitemap");
+  }
+});
+
+// En server/index.js
+app.get("/robots.txt", (req, res) => {
+  const robotsTxt = `User-agent: *
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /api/*
+Allow: /blog/
+Allow: /blog/*
+Allow: /about/
+Allow: /services/
+Allow: /contact/
+Allow: /turnitin/
+Allow: /cotizar/
+
+# Sitemap
+Sitemap: https://www.tutoriasuniversitarias.com/sitemap.xml
+
+# Ajustes de rastreo
+Crawl-delay: 1`;
+
+  res.type("text/plain");
+  res.send(robotsTxt);
+});
 
 // Admin routes
 app.post("/api/login", async (req, res) => {

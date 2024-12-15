@@ -10,6 +10,7 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
+import SEO from "./shared/SEO";
 import BlogPostEditor from "./BlogPostEditor";
 
 const BlogAdmin = () => {
@@ -116,129 +117,139 @@ const BlogAdmin = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Filtros y Botón Nuevo Post */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-grow">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar posts..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-600"
-            />
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-          </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-600"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="draft">Borradores</option>
-            <option value="published">Publicados</option>
-            <option value="archived">Archivados</option>
-          </select>
-          <button
-            onClick={() => {
-              setEditingPost(null);
-              setShowEditor(true);
-            }}
-            className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-          >
-            <Plus size={20} className="mr-2" />
-            Nuevo Post
-          </button>
-        </div>
-      </div>
-
-      {/* Lista de Posts */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {filteredPosts.length === 0 ? (
-          <div className="text-center py-12">
-            <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              No hay posts
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || statusFilter !== "all"
-                ? "No se encontraron posts con los filtros actuales"
-                : "Comienza creando tu primer post"}
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            {/* Vista móvil */}
-            <div className="sm:hidden">
-              {filteredPosts.map((post) => (
-                <MobilePostCard
-                  key={post.id}
-                  post={post}
-                  onEdit={() => {
-                    setEditingPost(post);
-                    setShowEditor(true);
-                  }}
-                  onDelete={() => handleDelete(post.id)}
-                />
-              ))}
+    <>
+      <SEO
+        title="Administración del Blog"
+        description="Panel de gestión de contenidos del blog"
+        canonicalUrl="https://www.tutoriasuniversitarias.com/admin/blog"
+      >
+        <meta name="robots" content="noindex,nofollow" />
+        <meta name="referrer" content="no-referrer" />
+      </SEO>
+      <div className="space-y-6">
+        {/* Filtros y Botón Nuevo Post */}
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-grow">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar posts..."
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-600"
+              />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
             </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full sm:w-auto px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-600"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="draft">Borradores</option>
+              <option value="published">Publicados</option>
+              <option value="archived">Archivados</option>
+            </select>
+            <button
+              onClick={() => {
+                setEditingPost(null);
+                setShowEditor(true);
+              }}
+              className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+            >
+              <Plus size={20} className="mr-2" />
+              Nuevo Post
+            </button>
+          </div>
+        </div>
 
-            {/* Vista desktop */}
-            <table className="hidden sm:table min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Título
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fecha
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vistas
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+        {/* Lista de Posts */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          {filteredPosts.length === 0 ? (
+            <div className="text-center py-12">
+              <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No hay posts
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                {searchTerm || statusFilter !== "all"
+                  ? "No se encontraron posts con los filtros actuales"
+                  : "Comienza creando tu primer post"}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              {/* Vista móvil */}
+              <div className="sm:hidden">
                 {filteredPosts.map((post) => (
-                  <PostRow
+                  <MobilePostCard
                     key={post.id}
                     post={post}
-                    onEdit={() => handleEdit(post)}
+                    onEdit={() => {
+                      setEditingPost(post);
+                      setShowEditor(true);
+                    }}
                     onDelete={() => handleDelete(post.id)}
                   />
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+
+              {/* Vista desktop */}
+              <table className="hidden sm:table min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Título
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Estado
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Vistas
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredPosts.map((post) => (
+                    <PostRow
+                      key={post.id}
+                      post={post}
+                      onEdit={() => handleEdit(post)}
+                      onDelete={() => handleDelete(post.id)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Editor Modal */}
+        {showEditor && (
+          <BlogPostEditor
+            post={editingPost}
+            onClose={() => {
+              setShowEditor(false);
+              setEditingPost(null);
+            }}
+            onSave={async (savedPost) => {
+              await fetchPosts();
+              setShowEditor(false);
+              setEditingPost(null);
+            }}
+          />
         )}
       </div>
-
-      {/* Editor Modal */}
-      {showEditor && (
-        <BlogPostEditor
-          post={editingPost}
-          onClose={() => {
-            setShowEditor(false);
-            setEditingPost(null);
-          }}
-          onSave={async (savedPost) => {
-            await fetchPosts();
-            setShowEditor(false);
-            setEditingPost(null);
-          }}
-        />
-      )}
-    </div>
+    </>
   );
 };
 

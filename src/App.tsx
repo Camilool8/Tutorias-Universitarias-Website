@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
@@ -32,48 +33,50 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow pt-16">
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/cotizar" element={<UploadForm />} />
-                <Route path="/blog" element={<BlogList />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/turnitin" element={<Turnitin />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route
-                  path="/admin/login"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AdminLogin />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/admin/dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AdminDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route path="/admin/email-status" element={<EmailStatus />} />
-                <Route path="/promo" element={<PromoPage />} />
-                <Route path="/unsubscribe" element={<UnsubscribePage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </main>
-          <Footer />
-        </div>
-      </ScrollToTop>
-    </Router>
+    <HelmetProvider>
+      <Router>
+        <ScrollToTop>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow pt-16">
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/cotizar" element={<UploadForm />} />
+                  <Route path="/blog" element={<BlogList />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/turnitin" element={<Turnitin />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route
+                    path="/admin/login"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <AdminLogin />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/admin/dashboard"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <AdminDashboard />
+                      </Suspense>
+                    }
+                  />
+                  <Route path="/admin/email-status" element={<EmailStatus />} />
+                  <Route path="/promo" element={<PromoPage />} />
+                  <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </main>
+            <Footer />
+          </div>
+        </ScrollToTop>
+      </Router>
+    </HelmetProvider>
   );
 }
 

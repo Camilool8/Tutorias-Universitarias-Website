@@ -15,6 +15,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import PageTransition from "../components/PageTransition";
+import SEO from "../components/shared/SEO";
 import countriesData from "../data/countries.json";
 import useGeolocation, { getWhatsAppNumber } from "../hooks/useGeolocation";
 
@@ -160,225 +161,234 @@ const UploadForm = () => {
     }
   };
   return (
-    <PageTransition>
-      <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          {/* Encabezado */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-4xl sm:text-6xl font-bold mb-6 text-indigo-800">
-              Cotiza Ahora
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {activeTab === "turnitin"
-                ? "Verifica la originalidad de tus documentos con la herramienta líder mundial"
-                : "Obtén ayuda profesional para tus tareas académicas"}
-            </p>
-          </motion.div>
+    <>
+      <SEO
+        title="Cotizar Servicios"
+        description="Solicita una cotización personalizada para tus trabajos académicos. Proceso rápido, precios competitivos y atención inmediata para todas las materias."
+        canonicalUrl="https://www.tutoriasuniversitarias.com/cotizar"
+        keywords="cotización académica, precios tutoría, servicios universitarios, presupuesto trabajos, cotizar tareas"
+        ogType="website"
+      />
+      <PageTransition>
+        <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto">
+            {/* Encabezado */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-12"
+            >
+              <h1 className="text-4xl sm:text-6xl font-bold mb-6 text-indigo-800">
+                Cotiza Ahora
+              </h1>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                {activeTab === "turnitin"
+                  ? "Verifica la originalidad de tus documentos con la herramienta líder mundial"
+                  : "Obtén ayuda profesional para tus tareas académicas"}
+              </p>
+            </motion.div>
 
-          {/* Pestañas */}
-          <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div className="bg-white p-2 rounded-xl shadow-xl grid grid-cols-2 gap-2">
-              <TabButton
-                isActive={activeTab === "general"}
-                onClick={() => handleTabChange("general")}
-                icon={<FileText />}
-                text="Servicios Generales"
-              />
-              <TabButton
-                isActive={activeTab === "turnitin"}
-                onClick={() => handleTabChange("turnitin")}
-                icon={<Shield />}
-                text="Verificación Turnitin"
-              />
-            </div>
-          </motion.div>
+            {/* Pestañas */}
+            <motion.div
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="bg-white p-2 rounded-xl shadow-xl grid grid-cols-2 gap-2">
+                <TabButton
+                  isActive={activeTab === "general"}
+                  onClick={() => handleTabChange("general")}
+                  icon={<FileText />}
+                  text="Servicios Generales"
+                />
+                <TabButton
+                  isActive={activeTab === "turnitin"}
+                  onClick={() => handleTabChange("turnitin")}
+                  icon={<Shield />}
+                  text="Verificación Turnitin"
+                />
+              </div>
+            </motion.div>
 
-          {/* Formulario */}
-          <motion.div
-            className="bg-white rounded-2xl shadow-xl overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <div className="p-6 sm:p-8">
-              <AnimatePresence mode="wait">
-                <motion.form
-                  key={activeTab}
-                  onSubmit={handleSubmit}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
-                >
-                  {/* Selector de documentos para Turnitin */}
-                  {activeTab === "turnitin" && (
-                    <div className="mb-6">
-                      {!showCustomInput ? (
-                        <>
-                          <h3 className="text-lg font-semibold text-gray-700 mb-4">
-                            Selecciona la cantidad de documentos a verificar:
-                          </h3>
-                          <div className="grid grid-cols-6 gap-3">
-                            {[1, 2, 3, 4, 5].map((num) => (
-                              <button
-                                key={num}
-                                type="button"
-                                onClick={() => handleDocumentCountChange(num)}
-                                className={`p-4 rounded-lg font-medium transition-all duration-300
+            {/* Formulario */}
+            <motion.div
+              className="bg-white rounded-2xl shadow-xl overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <div className="p-6 sm:p-8">
+                <AnimatePresence mode="wait">
+                  <motion.form
+                    key={activeTab}
+                    onSubmit={handleSubmit}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-6"
+                  >
+                    {/* Selector de documentos para Turnitin */}
+                    {activeTab === "turnitin" && (
+                      <div className="mb-6">
+                        {!showCustomInput ? (
+                          <>
+                            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                              Selecciona la cantidad de documentos a verificar:
+                            </h3>
+                            <div className="grid grid-cols-6 gap-3">
+                              {[1, 2, 3, 4, 5].map((num) => (
+                                <button
+                                  key={num}
+                                  type="button"
+                                  onClick={() => handleDocumentCountChange(num)}
+                                  className={`p-4 rounded-lg font-medium transition-all duration-300
                       ${
                         documentCount === num
                           ? "bg-indigo-600 text-white shadow-lg"
                           : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
                       }`}
-                              >
-                                {num}
-                              </button>
-                            ))}
-                            <button
-                              type="button"
-                              onClick={() => setShowCustomInput(true)}
-                              className="p-4 rounded-lg font-medium bg-indigo-50 text-indigo-600 
+                                >
+                                  {num}
+                                </button>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => setShowCustomInput(true)}
+                                className="p-4 rounded-lg font-medium bg-indigo-50 text-indigo-600 
                            hover:bg-indigo-100 transition-all duration-300"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-700">
-                            Introduce la cantidad de documentos:
-                          </h3>
-                          <div className="flex space-x-4">
-                            <input
-                              type="number"
-                              min="1"
-                              value={documentCount}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === "" || /^\d+$/.test(value)) {
-                                  handleDocumentCountChange(value);
-                                }
-                              }}
-                              className="w-24 px-4 py-3 rounded-lg border border-gray-200 
+                              >
+                                +
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="space-y-4">
+                            <h3 className="text-lg font-semibold text-gray-700">
+                              Introduce la cantidad de documentos:
+                            </h3>
+                            <div className="flex space-x-4">
+                              <input
+                                type="number"
+                                min="1"
+                                value={documentCount}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === "" || /^\d+$/.test(value)) {
+                                    handleDocumentCountChange(value);
+                                  }
+                                }}
+                                className="w-24 px-4 py-3 rounded-lg border border-gray-200 
                            focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowCustomInput(false)}
-                              className="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowCustomInput(false)}
+                                className="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg
                            hover:bg-gray-200 transition-colors duration-200"
-                            >
-                              Volver
-                            </button>
+                              >
+                                Volver
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Campo de servicio general */}
-                  {activeTab === "general" && (
-                    <FormField
-                      label="Tipo de Servicio"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      icon={<Book />}
-                      placeholder="Ej: Ensayo, Presentación, Proyecto"
-                    />
-                  )}
-
-                  {/* Campos comunes */}
-                  <FormField
-                    label="País"
-                    name="country"
-                    type="select"
-                    value={formData.country}
-                    onChange={handleChange}
-                    icon={<Globe />}
-                    options={countries.map((country) => ({
-                      value: country,
-                      label: country,
-                    }))}
-                  />
-
-                  <FormField
-                    label="Fecha de Entrega"
-                    name="dueDate"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={handleChange}
-                    icon={<Calendar />}
-                  />
-
-                  <FormField
-                    label="Correo Electrónico"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    icon={<Mail />}
-                    placeholder="tu@email.com"
-                  />
-
-                  <FormField
-                    label="Teléfono"
-                    name="phoneNumber"
-                    type="tel"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    icon={<Phone />}
-                    placeholder="+34 608 83 72 72"
-                  />
-
-                  {/* Mensajes de estado */}
-                  <AnimatePresence>
-                    {submitStatus.message && (
-                      <StatusMessage status={submitStatus} />
+                        )}
+                      </div>
                     )}
-                  </AnimatePresence>
 
-                  {/* Botón de envío */}
-                  <SubmitButton isSubmitting={isSubmitting} />
+                    {/* Campo de servicio general */}
+                    {activeTab === "general" && (
+                      <FormField
+                        label="Tipo de Servicio"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        icon={<Book />}
+                        placeholder="Ej: Ensayo, Presentación, Proyecto"
+                      />
+                    )}
 
-                  {/* Información adicional */}
-                  <div className="space-y-3">
-                    <InfoBox
-                      icon={<FaWhatsapp />}
-                      text="Te contactaremos por WhatsApp con tu cotización personalizada"
-                      variant="success"
+                    {/* Campos comunes */}
+                    <FormField
+                      label="País"
+                      name="country"
+                      type="select"
+                      value={formData.country}
+                      onChange={handleChange}
+                      icon={<Globe />}
+                      options={countries.map((country) => ({
+                        value: country,
+                        label: country,
+                      }))}
                     />
-                    <InfoBox
-                      icon={
-                        activeTab === "turnitin" ? <Shield /> : <FileText />
-                      }
-                      text={
-                        activeTab === "turnitin"
-                          ? "Recibirás el informe de Turnitin en un plazo de 24 horas"
-                          : "Podrás enviar documentos adicionales por WhatsApp"
-                      }
-                      variant="info"
+
+                    <FormField
+                      label="Fecha de Entrega"
+                      name="dueDate"
+                      type="date"
+                      value={formData.dueDate}
+                      onChange={handleChange}
+                      icon={<Calendar />}
                     />
-                  </div>
-                </motion.form>
-              </AnimatePresence>
-            </div>
-          </motion.div>
+
+                    <FormField
+                      label="Correo Electrónico"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      icon={<Mail />}
+                      placeholder="tu@email.com"
+                    />
+
+                    <FormField
+                      label="Teléfono"
+                      name="phoneNumber"
+                      type="tel"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      icon={<Phone />}
+                      placeholder="+34 608 83 72 72"
+                    />
+
+                    {/* Mensajes de estado */}
+                    <AnimatePresence>
+                      {submitStatus.message && (
+                        <StatusMessage status={submitStatus} />
+                      )}
+                    </AnimatePresence>
+
+                    {/* Botón de envío */}
+                    <SubmitButton isSubmitting={isSubmitting} />
+
+                    {/* Información adicional */}
+                    <div className="space-y-3">
+                      <InfoBox
+                        icon={<FaWhatsapp />}
+                        text="Te contactaremos por WhatsApp con tu cotización personalizada"
+                        variant="success"
+                      />
+                      <InfoBox
+                        icon={
+                          activeTab === "turnitin" ? <Shield /> : <FileText />
+                        }
+                        text={
+                          activeTab === "turnitin"
+                            ? "Recibirás el informe de Turnitin en un plazo de 24 horas"
+                            : "Podrás enviar documentos adicionales por WhatsApp"
+                        }
+                        variant="info"
+                      />
+                    </div>
+                  </motion.form>
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </PageTransition>
+      </PageTransition>
+    </>
   );
 };
 
