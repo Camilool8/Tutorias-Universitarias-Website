@@ -101,10 +101,25 @@ const generator = {
 
   async init() {
     this.browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium-browser",
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      protocolTimeout: 30000,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-extensions",
+        "--disable-web-security",
+        "--disable-features=IsolateOrigins,site-per-process",
+      ],
+      protocolTimeout: 60000,
+      timeout: 60000,
+      defaultViewport: {
+        width: 1920,
+        height: 1080,
+      },
     });
   },
 
@@ -119,6 +134,7 @@ const generator = {
 
       await page.goto(`${this.baseUrl}${route.path}`, {
         waitUntil: "networkidle0",
+        timeout: 60000,
       });
 
       await page.evaluate(

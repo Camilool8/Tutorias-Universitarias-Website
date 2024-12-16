@@ -1,25 +1,20 @@
 # Build stage
-FROM node:18-alpine AS build
+FROM node:lts-alpine3.20 AS build
 
 WORKDIR /app
 
+RUN apk update && apk add bash
 RUN apk add --no-cache \
-    alsa-lib \
     chromium \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    libdrm \
-    libstdc++ \
-    libx11 \
-    libxdamage \
-    libxi \
-    libxrandr \
-    libxtst \
     nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
     ttf-freefont \
-    udev
+    nodejs \
+    yarn
 
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY package*.json ./
 RUN npm ci
@@ -32,23 +27,16 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-
+RUN apk update && apk add bash
 RUN apk add --no-cache \
-    alsa-lib \
     chromium \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    libdrm \
-    libstdc++ \
-    libx11 \
-    libxdamage \
-    libxi \
-    libxrandr \
-    libxtst \
     nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
     ttf-freefont \
-    udev
+    nodejs \
+    yarn
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
