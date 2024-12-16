@@ -3,17 +3,19 @@ FROM node:lts-alpine3.20 AS build
 
 WORKDIR /app
 
-RUN apk update && apk add bash
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     chromium \
     nss \
     freetype \
+    freetype-dev \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
     nodejs \
-    yarn
+    yarn \
+    bash
 
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY package*.json ./
@@ -27,16 +29,17 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-RUN apk update && apk add bash
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     chromium \
     nss \
     freetype \
+    freetype-dev \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
     nodejs \
-    yarn
+    yarn \
+    bash
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
@@ -46,6 +49,7 @@ COPY .env ./
 
 RUN npm ci --only=production && npm install -g pm2
 
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 EXPOSE 3001

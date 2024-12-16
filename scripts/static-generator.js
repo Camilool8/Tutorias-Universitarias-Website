@@ -100,74 +100,77 @@ const generator = {
   outputDir: path.join(process.cwd(), "dist/static"),
 
   async init() {
-    this.browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",
-        "--disable-extensions",
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process",
-      ],
-      protocolTimeout: 60000,
-      timeout: 60000,
-      defaultViewport: {
-        width: 1920,
-        height: 1080,
-      },
-    });
+    try {
+      this.browser = await puppeteer.launch({
+        headless: "true",
+        args: ["--no-sandbox", "--disable-gpu"],
+        protocolTimeout: 180000,
+        timeout: 180000,
+        defaultViewport: {
+          width: 1920,
+          height: 1080,
+        },
+      });
+    } catch (error) {
+      console.error("Error initializing browser:", error);
+      throw error;
+    }
   },
 
   async generatePage(route) {
     if (!this.browser) throw new Error("Browser not initialized");
 
-    const page = await this.browser.newPage();
-    const fullPath = path.join(this.outputDir, route.path);
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const page = await this.browser.newPage();
+      const fullPath = path.join(this.outputDir, route.path);
 
-    try {
-      await fs.ensureDir(fullPath);
+      try {
+        await fs.ensureDir(fullPath);
 
-      await page.goto(`${this.baseUrl}${route.path}`, {
-        waitUntil: "networkidle0",
-        timeout: 60000,
-      });
+        await page.goto(`${this.baseUrl}${route.path}`, {
+          waitUntil: "networkidle0",
+          timeout: 60000,
+        });
 
-      await page.evaluate(
-        (metadata) => {
-          const head = document.head;
-          const metaTags = [
-            `<title>${metadata.title}</title>`,
-            `<meta name="description" content="${metadata.description}">`,
-            `<meta property="og:title" content="${metadata.title}">`,
-            `<meta property="og:description" content="${metadata.description}">`,
-            `<meta property="og:image" content="${
-              metadata.image || "/default-og-image.jpg"
-            }">`,
-            `<meta property="og:url" content="${metadata.url}">`,
-            `<meta property="og:type" content="${metadata.type}">`,
-            metadata.publishedTime
-              ? `<meta property="article:published_time" content="${metadata.publishedTime}">`
-              : "",
-            `<link rel="canonical" href="${metadata.url}">`,
-          ].join("");
+        await page.evaluate(
+          (metadata) => {
+            const head = document.head;
+            const metaTags = [
+              `<title>${metadata.title}</title>`,
+              `<meta name="description" content="${metadata.description}">`,
+              `<meta property="og:title" content="${metadata.title}">`,
+              `<meta property="og:description" content="${metadata.description}">`,
+              `<meta property="og:image" content="${
+                metadata.image || "/default-og-image.jpg"
+              }">`,
+              `<meta property="og:url" content="${metadata.url}">`,
+              `<meta property="og:type" content="${metadata.type}">`,
+              metadata.publishedTime
+                ? `<meta property="article:published_time" content="${metadata.publishedTime}">`
+                : "",
+              `<link rel="canonical" href="${metadata.url}">`,
+            ].join("");
 
-          head.insertAdjacentHTML("afterbegin", metaTags);
-        },
-        { ...route.metadata, url: `${this.baseUrl}${route.path}` }
-      );
+            head.insertAdjacentHTML("afterbegin", metaTags);
+          },
+          { ...route.metadata, url: `${this.baseUrl}${route.path}` }
+        );
 
-      const html = await page.content();
-      await fs.writeFile(path.join(fullPath, "index.html"), html);
-    } catch (error) {
-      console.error(`Error generating page for ${route.path}:`, error);
-      throw error;
-    } finally {
-      await page.close();
+        const html = await page.content();
+        await fs.writeFile(path.join(fullPath, "index.html"), html);
+      } catch (error) {
+        console.error(
+          `Attempt ${attempt} Error generating page for ${route.path}:`,
+          error
+        );
+        await page.close();
+
+        if (attempt === 3) {
+          throw error;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      }
     }
   },
 
