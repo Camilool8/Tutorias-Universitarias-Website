@@ -48,7 +48,7 @@ const SEO: React.FC<SEOProps> = ({
       {keywords && <meta name="keywords" content={keywords} />}
       <meta
         name="author"
-        content="Tutorías Universitarias - Tareas y Exámenes Express"
+        content="Tutorías Universitarias - Tareas y Exámenes Express en RD"
       />
       <link rel="canonical" href={canonicalUrl} />
 
