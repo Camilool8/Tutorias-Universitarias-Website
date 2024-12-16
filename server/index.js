@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs-extra";
+import { StaticGenerator } from "../scripts/static-generator.js";
 import compression from "compression";
 import nodemailer from "nodemailer";
 import rateLimit from "express-rate-limit";
@@ -75,11 +77,30 @@ const setCustomCacheControl = (res, path) => {
   }
 };
 app.use(compression());
+const staticDir = path.join(__dirname, "../dist/static");
+app.use(express.static(staticDir, { setHeaders: setCustomCacheControl }));
 app.use(
   express.static(path.join(__dirname, "../dist"), {
     setHeaders: setCustomCacheControl,
   })
 );
+
+// Regenerar archivos estáticos periódicamente (cada 6 horas)
+const REGENERATION_INTERVAL = 6 * 60 * 60 * 1000;
+
+async function regenerateStaticFiles() {
+  try {
+    console.log("Starting static file regeneration...");
+    await StaticGenerator.generateAll();
+    console.log("Static file regeneration complete");
+  } catch (error) {
+    console.error("Error regenerating static files:", error);
+  }
+}
+
+regenerateStaticFiles();
+
+setInterval(regenerateStaticFiles, REGENERATION_INTERVAL);
 
 // Crawling routes
 app.get("/sitemap.xml", async (req, res) => {
@@ -149,7 +170,6 @@ app.get("/sitemap.xml", async (req, res) => {
   }
 });
 
-// En server/index.js
 app.get("/robots.txt", (req, res) => {
   const robotsTxt = `User-agent: *
 Disallow: /admin/
@@ -163,6 +183,7 @@ Allow: /services/
 Allow: /contact/
 Allow: /turnitin/
 Allow: /cotizar/
+Allow: /promo/
 
 # Sitemap
 Sitemap: https://www.tutoriasuniversitarias.com/sitemap.xml
@@ -1711,56 +1732,17 @@ app.post("/api/blog/tags", verifyToken, async (req, res) => {
   }
 });
 
-// Función helper para generar slugs únicos
-async function generateUniqueSlug(title) {
-  const baseSlug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-");
-
-  let slug = baseSlug;
-  let counter = 1;
-  let exists = true;
-
-  while (exists) {
-    const { data, error } = await supabase
-      .from("blog_posts")
-      .select("slug")
-      .eq("slug", slug)
-      .single();
-
-    if (error || !data) {
-      exists = false;
-    } else {
-      slug = `${baseSlug}-${counter}`;
-      counter++;
-    }
-  }
-
-  return slug;
-}
-
-// app.patch("/api/leads/:id", verifyToken, async (req, res) => {
-//   try {
-//     const { error } = await supabase
-//       .from("leads")
-//       .update(req.body)
-//       .eq("id", req.params.id);
-
-//     if (error) throw error;
-//     res.json({ message: "Lead updated successfully" });
-//   } catch (error) {
-//     console.error("Error updating lead:", error);
-//     res.status(500).json({ error: "Error updating lead" });
-//   }
-// });
-
-app.use((req, res, next) => {
-  res.status(404).sendFile(path.join(__dirname, "../dist/index.html"));
-});
-
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/index.html"));
+  const requestedPath = req.path.endsWith("/")
+    ? `${req.path}index.html`
+    : `${req.path}/index.html`;
+  const fullPath = path.join(staticDir, requestedPath);
+
+  res.sendFile(fullPath, (err) => {
+    if (err) {
+      res.status(404).sendFile(path.join(staticDir, "index.html"));
+    }
+  });
 });
 
 app.listen(port, () => {
