@@ -5,17 +5,11 @@ WORKDIR /app
 
 RUN apk add --no-cache \
     alsa-lib \
-    at-spi2-atk \
     chromium \
     freetype \
     freetype-dev \
-    gtk3 \
     harfbuzz \
-    libcomposite \
-    libcups \
     libdrm \
-    libgbm \
-    libnss3 \
     libstdc++ \
     libx11 \
     libxdamage \
@@ -41,17 +35,11 @@ WORKDIR /app
 
 RUN apk add --no-cache \
     alsa-lib \
-    at-spi2-atk \
     chromium \
     freetype \
     freetype-dev \
-    gtk3 \
     harfbuzz \
-    libcomposite \
-    libcups \
     libdrm \
-    libgbm \
-    libnss3 \
     libstdc++ \
     libx11 \
     libxdamage \
