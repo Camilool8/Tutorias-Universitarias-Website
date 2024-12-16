@@ -85,7 +85,16 @@ const BlogList = () => {
         description="Descubre artículos académicos, consejos de estudio, guías y recursos para mejorar tu rendimiento universitario. Blog especializado en educación superior."
         canonicalUrl="https://www.tutoriasuniversitarias.com/blog"
         keywords="blog universitario, consejos estudio, guías académicas, recursos universitarios, tutorías"
-        ogType="blog"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "Blog Universitario - Tutorías Universitarias",
+          description: "Recursos y consejos para estudiantes universitarios",
+          publisher: {
+            "@type": "Organization",
+            name: "Tutorías Universitarias",
+          },
+        }}
       />
       <PageTransition>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">

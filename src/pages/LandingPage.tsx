@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
+import SEO from "../components/shared/SEO";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -115,6 +116,25 @@ const LandingPage = () => {
 
   return (
     <>
+      <SEO
+        title="Tareas Express en RD"
+        description="Realizamos tareas, tutorías y exámenes de Matemáticas, Química, Física, Calculo, Geometría Analítica, Estadística, Ensayos, Tesis, Monográficos y más."
+        canonicalUrl="https://www.tutoriasuniversitarias.com"
+        keywords="tareas express, tutorías universitarias, República Dominicana, RD, matemáticas, química, física, cálculo, exámenes"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "EducationalOrganization",
+          name: "Tutorías Universitarias",
+          description:
+            "Servicios de tutoría experta para estudiantes universitarios en todas las materias.",
+          url: "https://www.tutoriasuniversitarias.com",
+          logo: "https://www.tutoriasuniversitarias.com/images/logo-dark.svg",
+          sameAs: [
+            "https://www.facebook.com/profile.php?id=100088640089400",
+            "https://www.instagram.com/tutorias_universitarias/",
+          ],
+        }}
+      />
       <div className="bg-gradient-to-b from-blue-50 to-purple-50">
         {/* Hero Section Mejorado */}
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
@@ -384,7 +404,7 @@ const FeatureCard = ({ icon, title, description, delay }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay }}
-    className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300
+    className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl
                border border-gray-100 hover:border-blue-100 group"
   >
     <div className="mb-6 transform transition-transform duration-300 group-hover:scale-110">
@@ -428,7 +448,7 @@ const TestimonialCard = ({ quote, author, country, delay }) => (
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay }}
     className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 relative group
-               hover:bg-white/20 transition-all duration-300"
+               hover:bg-white/20"
   >
     <div className="mb-6 text-gray-200 italic relative">
       <span className="absolute -top-4 -left-2 text-4xl text-purple-400 opacity-50">

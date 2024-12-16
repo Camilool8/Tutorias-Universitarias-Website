@@ -75,20 +75,33 @@ const BlogPost = () => {
   return (
     <>
       <SEO
-        title={post.meta_title || post.title}
-        description={post.meta_description || post.excerpt}
+        title={post.title}
+        description={post.excerpt || post.meta_description}
         canonicalUrl={`https://www.tutoriasuniversitarias.com/blog/${post.slug}`}
         ogType="article"
-        keywords={post.tags?.map((tag) => tag.name).join(", ")}
-        image={post.featured_image}
-      >
-        <meta property="article:published_time" content={post.published_at} />
-        <meta property="article:modified_time" content={post.updated_at} />
-        <meta property="article:section" content={post.category?.name} />
-        {post.tags?.map((tag) => (
-          <meta property="article:tag" content={tag.name} key={tag.id} />
-        ))}
-      </SEO>
+        keywords={post.keywords}
+        image={post.featured_image} // Esta es la única página donde usamos imagen dinámica
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: post.title,
+          image: post.featured_image,
+          datePublished: post.published_at,
+          dateModified: post.updated_at,
+          author: {
+            "@type": "Organization",
+            name: "Tutorías Universitarias",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Tutorías Universitarias",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://www.tutoriasuniversitarias.com/images/logo-dark.svg",
+            },
+          },
+        }}
+      />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16">
         <article className="container mx-auto px-4 max-w-4xl">
           <motion.div

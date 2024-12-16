@@ -163,10 +163,22 @@ const Services: React.FC = () => {
   return (
     <>
       <SEO
-        title="Nuestros Servicios"
-        description="Descubre nuestra amplia gama de servicios académicos: tutorías personalizadas, resolución de tareas, preparación de exámenes y más."
+        title="Servicios Académicos"
+        description="Ofrecemos servicios de tutorías personalizadas, resolución de tareas, preparación de exámenes, revisión de trabajos y más para estudiantes universitarios."
         canonicalUrl="https://www.tutoriasuniversitarias.com/services"
-        keywords="servicios académicos, tutorias personalizadas, resolución tareas, exámenes universitarios"
+        keywords="servicios académicos, tutorías personalizadas, tareas universitarias, exámenes, trabajos académicos"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Servicios Académicos - Tutorías Universitarias",
+          description:
+            "Servicios académicos personalizados para estudiantes universitarios",
+          provider: {
+            "@type": "EducationalOrganization",
+            name: "Tutorías Universitarias",
+          },
+          serviceType: "Educational Service",
+        }}
       />
       <PageTransition>
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-16">

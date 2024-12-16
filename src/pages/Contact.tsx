@@ -73,6 +73,21 @@ const Contact: React.FC = () => {
         description="¿Necesitas ayuda con tus estudios? Contáctanos para recibir asistencia personalizada. Respuesta rápida y atención 24/7."
         canonicalUrl="https://www.tutoriasuniversitarias.com/contact"
         keywords="contacto tutorias, asistencia académica, ayuda universitaria, consultas académicas"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Contacto - Tutorías Universitarias",
+          mainEntity: {
+            "@type": "Organization",
+            name: "Tutorías Universitarias",
+            contactPoint: {
+              "@type": "ContactPoint",
+              telephone: "+34-608-837-272",
+              contactType: "customer service",
+              availableLanguage: ["Spanish", "English"],
+            },
+          },
+        }}
       />
       <PageTransition>
         <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen py-8 md:py-16">

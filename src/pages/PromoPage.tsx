@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import SEO from "../components/shared/SEO";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
@@ -219,143 +220,176 @@ Quedo atento a su respuesta. ¡Gracias!`);
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen w-screen overflow-x-hidden relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20 sm:pb-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05)_1px,transparent_1px)] bg-[length:20px_20px]" />
-        <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="relative z-10 flex items-center justify-center p-4 sm:p-8 lg:p-16 bg-gradient-to-r from-white/95 to-white/80 backdrop-blur-sm"
-          >
-            <div className="w-full max-w-lg space-y-6 sm:space-y-8 py-4 sm:py-8">
-              <div className="space-y-4">
-                <motion.h1
+    <>
+      <SEO
+        title="Ofertas Especiales para Estudiantes"
+        description="¿Trabajas y estudias? Aprovecha nuestras ofertas especiales en servicios académicos. Tutores expertos disponibles 24/7 para ayudarte con tus tareas universitarias."
+        canonicalUrl="https://www.tutoriasuniversitarias.com/promo"
+        keywords="ofertas académicas, descuentos tutorías, promociones estudiantes, ayuda académica, servicios universitarios descuento"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SpecialOffer",
+          name: "Ofertas Especiales para Estudiantes",
+          description:
+            "Ofertas especiales en servicios académicos para estudiantes que trabajan",
+          provider: {
+            "@type": "EducationalOrganization",
+            name: "Tutorías Universitarias",
+          },
+          availabilityStarts: new Date().toISOString(),
+          eligibleCustomerType: "Students",
+          category: "Education",
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            priceCurrency: "USD",
+            eligibleQuantity: {
+              "@type": "QuantitativeValue",
+              value: 1,
+            },
+          },
+        }}
+      />
+      <PageTransition>
+        <div className="min-h-screen w-screen overflow-x-hidden relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20 sm:pb-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05)_1px,transparent_1px)] bg-[length:20px_20px]" />
+          <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="relative z-10 flex items-center justify-center p-4 sm:p-8 lg:p-16 bg-gradient-to-r from-white/95 to-white/80 backdrop-blur-sm"
+            >
+              <div className="w-full max-w-lg space-y-6 sm:space-y-8 py-4 sm:py-8">
+                <div className="space-y-4">
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight"
+                  >
+                    ¿Trabajas y no tienes tiempo para tus{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+                      tareas académicas
+                    </span>
+                    ?
+                  </motion.h1>
+                  <p className="text-lg sm:text-xl text-gray-600">
+                    Tutores expertos disponibles 24/7 para ayudarte con tus
+                    trabajos
+                  </p>
+                </div>
+
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight"
+                  transition={{ delay: 0.3 }}
+                  className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5"
                 >
-                  ¿Trabajas y no tienes tiempo para tus{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
-                    tareas académicas
-                  </span>
-                  ?
-                </motion.h1>
-                <p className="text-lg sm:text-xl text-gray-600">
-                  Tutores expertos disponibles 24/7 para ayudarte con tus
-                  trabajos
-                </p>
-              </div>
+                  <Feature icon={<Clock size={18} />} text="Entrega en 24h" />
+                  <Feature icon={<Star size={18} />} text="Calidad Premium" />
+                  <Feature
+                    icon={<CheckCircle size={18} />}
+                    text="100% Original"
+                  />
+                  <Feature
+                    icon={<HeartHandshake size={18} />}
+                    text="Soporte 24/7"
+                  />
+                  <Feature
+                    icon={<FileCheck size={18} />}
+                    text="Verificación Turnitin"
+                  />
+                  <Feature
+                    icon={<Shield size={18} />}
+                    text="100% Confidencial"
+                  />
+                </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5"
-              >
-                <Feature icon={<Clock size={18} />} text="Entrega en 24h" />
-                <Feature icon={<Star size={18} />} text="Calidad Premium" />
-                <Feature
-                  icon={<CheckCircle size={18} />}
-                  text="100% Original"
-                />
-                <Feature
-                  icon={<HeartHandshake size={18} />}
-                  text="Soporte 24/7"
-                />
-                <Feature
-                  icon={<FileCheck size={18} />}
-                  text="Verificación Turnitin"
-                />
-                <Feature icon={<Shield size={18} />} text="100% Confidencial" />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-                className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 sm:p-6 rounded-xl border border-indigo-100 shadow-sm"
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="bg-white p-2 rounded-lg flex-shrink-0">
-                    <Sparkles className="text-indigo-600 w-5 h-5 sm:w-6 sm:h-6" />
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 sm:p-6 rounded-xl border border-indigo-100 shadow-sm"
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-white p-2 rounded-lg flex-shrink-0">
+                      <Sparkles className="text-indigo-600 w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-semibold text-indigo-800 mb-1">
+                        ¡Encuentra tu tutor ideal!
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-600">
+                        Déjanos tu correo y te asignaremos el tutor más
+                        calificado según tu área de estudio
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-indigo-800 mb-1">
-                      ¡Encuentra tu tutor ideal!
-                    </h3>
-                    <p className="text-sm sm:text-base text-gray-600">
-                      Déjanos tu correo y te asignaremos el tutor más calificado
-                      según tu área de estudio
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
 
-              <motion.form
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                onSubmit={handleSubmit}
-                className="space-y-4"
-              >
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="tucorreo@ejemplo.com"
-                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border-2 
+                <motion.form
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-4"
+                >
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="tucorreo@ejemplo.com"
+                      className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border-2 
                        border-indigo-100 focus:border-indigo-500 focus:ring-2 
                        focus:ring-indigo-200 outline-none transition-all duration-300 
                        text-base sm:text-lg"
-                    required
-                  />
-                  {renderActionButton()}
-                </div>
-                <AnimatePresence mode="wait">
-                  {status.message && (
-                    <StatusMessage key={status.message} status={status} />
-                  )}
-                </AnimatePresence>
-              </motion.form>
+                      required
+                    />
+                    {renderActionButton()}
+                  </div>
+                  <AnimatePresence mode="wait">
+                    {status.message && (
+                      <StatusMessage key={status.message} status={status} />
+                    )}
+                  </AnimatePresence>
+                </motion.form>
 
-              {/* Stats - Ajustado espaciado y tamaño para móvil */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="flex flex-col space-y-2 mt-4 sm:mt-8"
-              >
-                <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 bg-white/50 rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm">
-                  <Users className="text-indigo-500 w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="font-medium">
-                    Más de 1,000 estudiantes confían en nosotros
-                  </span>
-                </div>
-                <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 bg-white/50 rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm">
-                  <GraduationCap className="text-indigo-500 w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="font-medium">
-                    Más de 50 tutores expertos disponibles
-                  </span>
-                </div>
-              </motion.div>
+                {/* Stats - Ajustado espaciado y tamaño para móvil */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="flex flex-col space-y-2 mt-4 sm:mt-8"
+                >
+                  <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 bg-white/50 rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm">
+                    <Users className="text-indigo-500 w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="font-medium">
+                      Más de 1,000 estudiantes confían en nosotros
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 bg-white/50 rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm">
+                    <GraduationCap className="text-indigo-500 w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="font-medium">
+                      Más de 50 tutores expertos disponibles
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Imagen */}
+            <div className="absolute lg:relative inset-0 lg:inset-auto">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-indigo-900/60 to-purple-900/60 mix-blend-multiply" />
+              <img
+                src="/images/promo-banner.webp"
+                alt="Estudiante exitoso"
+                className="w-full h-full object-cover object-center"
+              />
             </div>
-          </motion.div>
-
-          {/* Imagen */}
-          <div className="absolute lg:relative inset-0 lg:inset-auto">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-indigo-900/60 to-purple-900/60 mix-blend-multiply" />
-            <img
-              src="/images/promo-banner.webp"
-              alt="Estudiante exitoso"
-              className="w-full h-full object-cover object-center"
-            />
           </div>
         </div>
-      </div>
-    </PageTransition>
+      </PageTransition>
+    </>
   );
 };
 

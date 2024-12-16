@@ -30,7 +30,18 @@ const AboutUs: React.FC = () => {
         title="Sobre Nosotros"
         description="Conoce nuestro equipo de tutores expertos y nuestra misión de ayudar a estudiantes universitarios a alcanzar la excelencia académica."
         canonicalUrl="https://www.tutoriasuniversitarias.com/about"
-        keywords="tutores universitarios, equipo académico, misión educativa, excelencia académica, ayuda universitaria"
+        keywords="tutores expertos, equipo académico, misión educativa, excelencia académica, ayuda universitaria"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          name: "Sobre Tutorías Universitarias",
+          mainEntity: {
+            "@type": "EducationalOrganization",
+            name: "Tutorías Universitarias",
+            description:
+              "Equipo de tutores expertos dedicados al éxito académico",
+          },
+        }}
       />
       <PageTransition>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">

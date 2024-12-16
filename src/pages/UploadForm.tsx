@@ -163,11 +163,36 @@ const UploadForm = () => {
   return (
     <>
       <SEO
-        title="Cotizar Servicios"
+        title="Cotizar Servicios Académicos"
         description="Solicita una cotización personalizada para tus trabajos académicos. Proceso rápido, precios competitivos y atención inmediata para todas las materias."
         canonicalUrl="https://www.tutoriasuniversitarias.com/cotizar"
         keywords="cotización académica, precios tutoría, servicios universitarios, presupuesto trabajos, cotizar tareas"
-        ogType="website"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Cotización de Servicios Académicos",
+          description:
+            "Servicio de cotización personalizada para trabajos académicos",
+          provider: {
+            "@type": "EducationalOrganization",
+            name: "Tutorías Universitarias",
+          },
+          serviceType: "Quote Request",
+          availableChannel: {
+            "@type": "ServiceChannel",
+            serviceUrl: "https://www.tutoriasuniversitarias.com/cotizar",
+            servicePhone: "+34 608 83 72 72",
+            availableLanguage: ["Spanish", "English"],
+          },
+          potentialAction: {
+            "@type": "QuoteAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: "https://www.tutoriasuniversitarias.com/cotizar",
+              inLanguage: "es",
+            },
+          },
+        }}
       />
       <PageTransition>
         <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">

@@ -74,10 +74,25 @@ const TurnitinSection = () => {
     <>
       <SEO
         title="Verificación Turnitin"
-        description="Servicio profesional de verificación de originalidad con Turnitin. Garantizamos la autenticidad de tus trabajos académicos con informes detallados."
+        description="Garantiza la originalidad de tus trabajos académicos con nuestro servicio de verificación Turnitin. Informes detallados y resultados en 24 horas."
         canonicalUrl="https://www.tutoriasuniversitarias.com/turnitin"
         keywords="turnitin, verificación plagio, originalidad académica, informes turnitin, autenticidad trabajos"
-        ogType="service"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Verificación Turnitin",
+          description: "Servicio de verificación de originalidad académica",
+          provider: {
+            "@type": "EducationalOrganization",
+            name: "Tutorías Universitarias",
+          },
+          offers: {
+            "@type": "Offer",
+            price: "20.00",
+            priceCurrency: "USD",
+            availability: "https://schema.org/InStock",
+          },
+        }}
       />
       <section className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         {/* Hero Section */}
@@ -109,7 +124,7 @@ const TurnitinSection = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.2 }}
-                  className="bg-white rounded-2xl shadow-xl p-8 transform hover:scale-105 transition-all duration-300"
+                  className="bg-white rounded-2xl shadow-xl p-8 hover:scale-105 duration-300"
                 >
                   <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
                     {benefit.icon}
@@ -131,7 +146,7 @@ const TurnitinSection = () => {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="bg-white rounded-3xl shadow-xl p-8 md:p-12 mb-24 overflow-hidden relative"
             >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full transform translate-x-32 -translate-y-32 opacity-50"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-50"></div>
 
               <h2 className="text-3xl md:text-4xl font-bold text-indigo-800 mb-12 text-center relative z-10">
                 La Diferencia de Usar Turnitin
