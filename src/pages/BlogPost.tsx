@@ -150,7 +150,7 @@ const BlogPost = () => {
         canonicalUrl={`https://www.tutoriasuniversitarias.com/blog/${post.slug}`}
         ogType="article"
         keywords={post.keywords}
-        image={post.featured_image} // Esta es la única página donde usamos imagen dinámica
+        image={post.featured_image}
         structuredData={{
           "@context": "https://schema.org",
           "@type": "BlogPosting",
