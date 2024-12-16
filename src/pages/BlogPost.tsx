@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import SEO from "../components/shared/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -143,6 +144,34 @@ const BlogPost = () => {
 
   return (
     <>
+      <SEO
+        title={post.title}
+        description={post.excerpt || post.meta_description}
+        canonicalUrl={`https://www.tutoriasuniversitarias.com/blog/${post.slug}`}
+        ogType="article"
+        keywords={post.keywords}
+        image={post.featured_image} // Esta es la única página donde usamos imagen dinámica
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: post.title,
+          image: post.featured_image,
+          datePublished: post.published_at,
+          dateModified: post.updated_at,
+          author: {
+            "@type": "Organization",
+            name: "Tutorías Universitarias",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Tutorías Universitarias",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://www.tutoriasuniversitarias.com/images/logo-dark.svg",
+            },
+          },
+        }}
+      />
       {/* Header flotante */}
       <motion.header
         initial={{ y: -100 }}
