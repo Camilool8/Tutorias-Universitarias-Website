@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
-COPY --from=build /app/scripts ./scripts
+COPY --from=build /app/scripts/static-generator.js ./scripts/static-generator.js
 COPY package*.json ./
 COPY .env ./
 

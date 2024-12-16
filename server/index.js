@@ -7,7 +7,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs-extra";
 import { StaticGenerator } from "../scripts/static-generator.js";
 import compression from "compression";
 import nodemailer from "nodemailer";
