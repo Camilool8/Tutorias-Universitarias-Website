@@ -101,8 +101,10 @@ const generator = {
 
   async init() {
     this.browser = await puppeteer.launch({
+      executablePath: "/usr/bin/chromium-browser",
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      protocolTimeout: 30000,
     });
   },
 

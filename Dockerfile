@@ -4,14 +4,28 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 RUN apk add --no-cache \
-    ca-certificates \
+    alsa-lib \
+    at-spi2-atk \
     chromium \
     freetype \
     freetype-dev \
+    gtk3 \
     harfbuzz \
+    libcomposite \
+    libcups \
+    libdrm \
+    libgbm \
+    libnss3 \
+    libstdc++ \
+    libx11 \
+    libxdamage \
+    libxi \
+    libxrandr \
+    libxtst \
     nss \
     ttf-freefont \
-    wqy-zenhei
+    udev
+
 
 COPY package*.json ./
 RUN npm ci
@@ -24,15 +38,29 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
+
 RUN apk add --no-cache \
-    ca-certificates \
+    alsa-lib \
+    at-spi2-atk \
     chromium \
     freetype \
     freetype-dev \
+    gtk3 \
     harfbuzz \
+    libcomposite \
+    libcups \
+    libdrm \
+    libgbm \
+    libnss3 \
+    libstdc++ \
+    libx11 \
+    libxdamage \
+    libxi \
+    libxrandr \
+    libxtst \
     nss \
     ttf-freefont \
-    wqy-zenhei
+    udev
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
