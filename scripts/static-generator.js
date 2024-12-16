@@ -96,10 +96,7 @@ const routes = [
 
 const generator = {
   browser: null,
-  baseUrl:
-    process.env.NODE_ENV === "production"
-      ? "https://www.tutoriasuniversitarias.com"
-      : "http://localhost:3001",
+  baseUrl: "http://localhost:3001",
   outputDir: path.join(process.cwd(), "dist/static"),
 
   async init() {
