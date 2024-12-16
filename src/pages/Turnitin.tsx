@@ -146,7 +146,7 @@ const TurnitinSection = () => {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="bg-white rounded-3xl shadow-xl p-8 md:p-12 mb-24 overflow-hidden relative"
             >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-50"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full translate-x-32 -translate-y-32 opacity-50"></div>
 
               <h2 className="text-3xl md:text-4xl font-bold text-indigo-800 mb-12 text-center relative z-10">
                 La Diferencia de Usar Turnitin
