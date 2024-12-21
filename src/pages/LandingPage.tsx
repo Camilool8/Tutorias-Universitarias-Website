@@ -117,7 +117,7 @@ const LandingPage = () => {
   return (
     <>
       <SEO
-        title="Tareas Express y Verificación con Turnitin en RD | Tutorías Universitarias"
+        title="Tareas Express y Verificación con Turnitin en RD"
         description="Realizamos tareas universitarias, verificación con Turnitin, tutorías y exámenes para PUCMM, UASD, UNPHU, INTEC, UNIBE y más universidades. Especialistas en Matemáticas, Química, Física, Cálculo, Estadística, Ensayos y Tesis."
         canonicalUrl="https://www.tutoriasuniversitarias.com"
         keywords="turnitin RD, verificación turnitin, tareas express, tutorías universitarias, PUCMM, UASD, UNPHU, INTEC, UNIBE, UTESA, O&M, UCSD, UNICARIBE, matemáticas, química, física, cálculo, exámenes"
