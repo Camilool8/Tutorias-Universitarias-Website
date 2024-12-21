@@ -117,18 +117,31 @@ const LandingPage = () => {
   return (
     <>
       <SEO
-        title="Tareas Express en RD"
-        description="Realizamos tareas, tutorías y exámenes de Matemáticas, Química, Física, Calculo, Geometría Analítica, Estadística, Ensayos, Tesis, Monográficos y más."
+        title="Tareas Express y Verificación con Turnitin en RD | Tutorías Universitarias"
+        description="Realizamos tareas universitarias, verificación con Turnitin, tutorías y exámenes para PUCMM, UASD, UNPHU, INTEC, UNIBE y más universidades. Especialistas en Matemáticas, Química, Física, Cálculo, Estadística, Ensayos y Tesis."
         canonicalUrl="https://www.tutoriasuniversitarias.com"
-        keywords="tareas express, tutorías universitarias, República Dominicana, RD, matemáticas, química, física, cálculo, exámenes"
+        keywords="turnitin RD, verificación turnitin, tareas express, tutorías universitarias, PUCMM, UASD, UNPHU, INTEC, UNIBE, UTESA, O&M, UCSD, UNICARIBE, matemáticas, química, física, cálculo, exámenes"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "EducationalOrganization",
           name: "Tutorías Universitarias",
           description:
-            "Servicios de tutoría experta para estudiantes universitarios en todas las materias.",
+            "Servicios de verificación Turnitin y tutoría experta para estudiantes universitarios de República Dominicana.",
           url: "https://www.tutoriasuniversitarias.com",
           logo: "https://www.tutoriasuniversitarias.com/images/logo-dark.svg",
+          areaServed: "República Dominicana",
+          knowsAbout: [
+            "Verificación Turnitin",
+            "Tutorías Universitarias",
+            "Matemáticas",
+            "Física",
+            "Química",
+            "Cálculo",
+            "Estadística",
+            "Ensayos",
+            "Tesis",
+            "Monográficos",
+          ],
           sameAs: [
             "https://www.facebook.com/profile.php?id=100088640089400",
             "https://www.instagram.com/tutorias_universitarias/",
