@@ -33,7 +33,7 @@ const getWhatsAppNumber = (continentCode: string) => {
       return "18492701295";
     case "EU":
     default:
-      return "34608837272";
+      return "18492701295";
   }
 };
 
