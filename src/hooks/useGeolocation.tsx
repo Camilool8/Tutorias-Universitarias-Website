@@ -30,10 +30,10 @@ const getWhatsAppNumber = (continentCode: string) => {
   switch (continentCode) {
     case "NA":
     case "SA":
-      return "18492701295";
+      return "18492705605";
     case "EU":
     default:
-      return "18492701295";
+      return "18492705605";
   }
 };
 

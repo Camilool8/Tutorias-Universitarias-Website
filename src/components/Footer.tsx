@@ -81,11 +81,11 @@ const Footer: React.FC = () => {
                 <span>soporte.tutoriasuniversitarias@gmail.com</span>
               </a>
               <a
-                href="tel:+18492701295"
+                href="tel:+18492705605"
                 className="flex items-center space-x-2 text-sm hover:text-blue-400 transition-colors"
               >
                 <Phone size={18} />
-                <span>+1 849 270 1295</span>
+                <span>+1 849 270 5605</span>
               </a>
             </div>
           </div>
