@@ -181,7 +181,7 @@ const UploadForm = () => {
           availableChannel: {
             "@type": "ServiceChannel",
             serviceUrl: "https://www.tutoriasuniversitarias.com/cotizar",
-            servicePhone: "+34 608 83 72 72",
+            servicePhone: "+1 849 270 1295",
             availableLanguage: ["Spanish", "English"],
           },
           potentialAction: {
@@ -374,7 +374,7 @@ const UploadForm = () => {
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       icon={<Phone />}
-                      placeholder="+34 608 83 72 72"
+                      placeholder="+1 849 270 1295"
                     />
 
                     {/* Mensajes de estado */}

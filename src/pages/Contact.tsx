@@ -82,7 +82,7 @@ const Contact: React.FC = () => {
             name: "Tutorías Universitarias",
             contactPoint: {
               "@type": "ContactPoint",
-              telephone: "+34-608-837-272",
+              telephone: "+1-849-270-1295",
               contactType: "customer service",
               availableLanguage: ["Spanish", "English"],
             },
@@ -104,8 +104,8 @@ const Contact: React.FC = () => {
                 <ul className="space-y-4 md:space-y-6">
                   <ContactItem
                     icon={<Phone size={20} />}
-                    text="+34 608 83 72 72"
-                    href="tel:+34608837272"
+                    text="+1 849 270 1295"
+                    href="tel:+18492701295"
                   />
                   <ContactItem
                     icon={<Mail size={20} />}
