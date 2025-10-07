@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
+import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { StaticGenerator } from "../scripts/static-generator.js";
 import compression from "compression";
@@ -75,31 +76,64 @@ const setCustomCacheControl = (res, path) => {
     res.setHeader("Cache-Control", "public, max-age=86400");
   }
 };
-app.use(compression());
+const distDir = path.join(__dirname, "../dist");
 const staticDir = path.join(__dirname, "../dist/static");
-app.use(express.static(staticDir, { setHeaders: setCustomCacheControl }));
+
+fs.ensureDirSync(staticDir);
+
+app.use(compression());
 app.use(
-  express.static(path.join(__dirname, "../dist"), {
+  express.static(distDir, {
     setHeaders: setCustomCacheControl,
   })
 );
 
-// Regenerar archivos estáticos periódicamente (cada 6 horas)
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 const REGENERATION_INTERVAL = 6 * 60 * 60 * 1000;
+let isGenerating = false;
 
 async function regenerateStaticFiles() {
+  if (isGenerating) {
+    console.log("Static generation already in progress, skipping...");
+    return;
+  }
+
   try {
+    isGenerating = true;
     console.log("Starting static file regeneration...");
+
+    // Wait for server to be fully ready
+    await waitForServer();
+
     await StaticGenerator.generateAll();
     console.log("Static file regeneration complete");
   } catch (error) {
     console.error("Error regenerating static files:", error);
+  } finally {
+    isGenerating = false;
   }
 }
 
-regenerateStaticFiles();
-
-setInterval(regenerateStaticFiles, REGENERATION_INTERVAL);
+async function waitForServer(maxAttempts = 10) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const response = await fetch(`http://localhost:${port}/health`);
+      if (response.ok) {
+        console.log("Server is ready for static generation");
+        return;
+      }
+    } catch (error) {
+      console.log(
+        `Waiting for server to be ready... (attempt ${i + 1}/${maxAttempts})`
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+  throw new Error("Server not ready after maximum attempts");
+}
 
 // Crawling routes
 app.get("/sitemap.xml", async (req, res) => {
@@ -1737,13 +1771,36 @@ app.get("*", (req, res) => {
     : `${req.path}/index.html`;
   const fullPath = path.join(staticDir, requestedPath);
 
-  res.sendFile(fullPath, (err) => {
+  if (fs.existsSync(fullPath)) {
+    return res.sendFile(fullPath);
+  }
+
+  res.sendFile(path.join(distDir, "index.html"), (err) => {
     if (err) {
-      res.status(404).sendFile(path.join(staticDir, "index.html"));
+      res.status(500).send("Error loading application");
     }
   });
 });
 
-app.listen(port, () => {
+// Start server
+const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
+
+  setTimeout(() => {
+    console.log("Scheduling initial static file generation...");
+    regenerateStaticFiles();
+
+    setInterval(() => {
+      console.log("Scheduled static file regeneration...");
+      regenerateStaticFiles();
+    }, REGENERATION_INTERVAL);
+  }, 5000);
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, closing server...");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
 });
