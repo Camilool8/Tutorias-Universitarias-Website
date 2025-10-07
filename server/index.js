@@ -1787,6 +1787,10 @@ const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 
+  // AUTOMATIC STATIC GENERATION DISABLED TO SAVE MEMORY
+  // Run manually with: docker exec -it <container> node scripts/static-generator.js
+
+  /* COMMENTED OUT - Uncomment only if you have more RAM
   setTimeout(() => {
     console.log("Scheduling initial static file generation...");
     regenerateStaticFiles().catch((err) => {
@@ -1800,6 +1804,7 @@ const server = app.listen(port, () => {
       });
     }, REGENERATION_INTERVAL);
   }, 60000);
+  */
 });
 
 process.on("SIGTERM", () => {

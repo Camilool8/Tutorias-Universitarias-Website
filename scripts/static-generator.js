@@ -72,19 +72,21 @@ const generator = {
           "--metrics-recording-only",
           "--mute-audio",
           "--no-default-browser-check",
+          "--disable-features=site-per-process,TranslateUI,BlinkGenPropertyTrees",
+          "--disable-accelerated-2d-canvas",
+          "--disable-web-security",
+          "--js-flags=--max-old-space-size=512",
         ],
         executablePath:
           process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
         protocolTimeout: 300000,
         timeout: 300000,
         defaultViewport: {
-          width: 1920,
-          height: 1080,
+          width: 1280,
+          height: 720,
         },
       });
-      console.log("Browser initialized successfully");
 
-      // Test that browser can create pages
       console.log("Testing page creation...");
       const testPage = await this.browser.newPage();
       await testPage.close();
