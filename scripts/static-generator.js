@@ -48,14 +48,27 @@ const routes = [
 
 const generator = {
   browser: null,
-  baseUrl: "http://localhost:3001",
+  baseUrl: process.env.BASE_URL || "http://localhost:3001",
   outputDir: path.join(process.cwd(), "dist/static"),
 
   async init() {
     try {
+      console.log("Initializing Puppeteer browser...");
       this.browser = await puppeteer.launch({
-        headless: "true",
-        args: ["--no-sandbox", "--disable-gpu"],
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+          "--disable-software-rasterizer",
+          "--disable-extensions",
+          "--no-first-run",
+          "--no-zygote",
+          "--single-process",
+        ],
+        executablePath:
+          process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
         protocolTimeout: 180000,
         timeout: 180000,
         defaultViewport: {
@@ -63,6 +76,7 @@ const generator = {
           height: 1080,
         },
       });
+      console.log("Browser initialized successfully");
     } catch (error) {
       console.error("Error initializing browser:", error);
       throw error;
@@ -71,34 +85,55 @@ const generator = {
 
   async generatePage(route) {
     if (!this.browser) throw new Error("Browser not initialized");
+
     const page = await this.browser.newPage();
     const fullPath = path.join(this.outputDir, route.path);
+    const url = `${this.baseUrl}${route.path}`;
 
     try {
-      // Asegurar que el directorio existe
+      console.log(`Generating: ${url}`);
+
+      // Ensure directory exists
       await fs.ensureDir(fullPath);
 
-      // Navegar a la página y esperar a que todo esté cargado
-      await page.goto(`${this.baseUrl}${route.path}`, {
-        waitUntil: "networkidle0",
-        timeout: 60000,
+      // Set longer timeout for the page
+      page.setDefaultTimeout(120000);
+      page.setDefaultNavigationTimeout(120000);
+
+      // Navigate with less strict wait condition
+      await page.goto(url, {
+        waitUntil: "networkidle2",
+        timeout: 120000,
       });
 
-      // Esperar a que Helmet haya insertado los meta tags
-      await Promise.all([
-        page.waitForSelector("title"),
-        page.waitForSelector('meta[property="og:title"]'),
-        page.waitForSelector('link[rel="canonical"]'),
-      ]);
+      // Wait a bit for dynamic content
+      await page.waitForTimeout(2000);
 
-      // Capturar el HTML ya hidratado
+      // Try to wait for critical elements with timeout
+      try {
+        await Promise.race([
+          page.waitForSelector("title", { timeout: 5000 }),
+          page.waitForTimeout(5000),
+        ]);
+      } catch (e) {
+        console.warn(`Warning: Some meta tags not found for ${route.path}`);
+      }
+
+      // Capture the HTML
       const html = await page.content();
 
-      // Guardar el HTML
-      await fs.writeFile(path.join(fullPath, "index.html"), html);
+      // Save the HTML
+      const outputPath = path.join(fullPath, "index.html");
+      await fs.writeFile(outputPath, html);
+
+      console.log(`✓ Generated: ${route.path}`);
+      return true;
     } catch (error) {
-      console.error(`Error generating page for ${route.path}:`, error);
-      throw error;
+      console.error(
+        `✗ Error generating page for ${route.path}:`,
+        error.message
+      );
+      return false;
     } finally {
       await page.close();
     }
@@ -106,44 +141,68 @@ const generator = {
 
   async generateBlogPosts() {
     try {
+      console.log("Fetching published blog posts...");
       const { data: posts, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("slug")
         .eq("status", "published");
 
       if (error) throw error;
 
-      for (const post of posts) {
-        await this.generatePage({
-          path: `/blog/${post.slug}`,
-        });
+      console.log(`Found ${posts?.length || 0} published posts`);
+
+      if (posts && posts.length > 0) {
+        let successCount = 0;
+        for (const post of posts) {
+          const success = await this.generatePage({
+            path: `/blog/${post.slug}`,
+          });
+          if (success) successCount++;
+        }
+        console.log(`Generated ${successCount}/${posts.length} blog posts`);
       }
     } catch (error) {
       console.error("Error generating blog posts:", error);
-      throw error;
     }
   },
 
   async generateAll() {
+    const startTime = Date.now();
     try {
-      console.log("Starting static generation...");
+      console.log("=== Starting static generation ===");
+      console.log(`Base URL: ${this.baseUrl}`);
+      console.log(`Output directory: ${this.outputDir}`);
+
       await this.init();
 
+      let successCount = 0;
+      let failCount = 0;
+
+      // Generate static routes
       for (const route of routes) {
-        console.log(`Generating ${route.path}...`);
-        await this.generatePage(route);
+        const success = await this.generatePage(route);
+        if (success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
       }
 
-      console.log("Generating blog posts...");
+      // Generate blog posts
       await this.generateBlogPosts();
 
-      console.log("Static generation completed successfully!");
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.log("\n=== Static generation completed ===");
+      console.log(`Duration: ${duration}s`);
+      console.log(`Success: ${successCount} pages`);
+      console.log(`Failed: ${failCount} pages`);
     } catch (error) {
-      console.error("Error in static generation:", error);
+      console.error("Critical error in static generation:", error);
       throw error;
     } finally {
       if (this.browser) {
         await this.browser.close();
+        console.log("Browser closed");
       }
     }
   },

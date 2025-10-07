@@ -39,7 +39,8 @@ RUN apk update && apk add --no-cache \
     ttf-freefont \
     nodejs \
     yarn \
-    bash
+    bash \
+    wget
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server

@@ -1785,16 +1785,21 @@ app.get("*", (req, res) => {
 // Start server
 const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 
   setTimeout(() => {
     console.log("Scheduling initial static file generation...");
-    regenerateStaticFiles();
+    regenerateStaticFiles().catch((err) => {
+      console.error("Initial static generation failed:", err);
+    });
 
     setInterval(() => {
       console.log("Scheduled static file regeneration...");
-      regenerateStaticFiles();
+      regenerateStaticFiles().catch((err) => {
+        console.error("Scheduled static generation failed:", err);
+      });
     }, REGENERATION_INTERVAL);
-  }, 5000);
+  }, 30000);
 });
 
 process.on("SIGTERM", () => {
