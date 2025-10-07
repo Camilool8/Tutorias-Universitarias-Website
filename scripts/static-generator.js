@@ -66,17 +66,29 @@ const generator = {
           "--no-first-run",
           "--no-zygote",
           "--single-process",
+          "--disable-background-networking",
+          "--disable-default-apps",
+          "--disable-sync",
+          "--metrics-recording-only",
+          "--mute-audio",
+          "--no-default-browser-check",
         ],
         executablePath:
           process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
-        protocolTimeout: 180000,
-        timeout: 180000,
+        protocolTimeout: 300000,
+        timeout: 300000,
         defaultViewport: {
           width: 1920,
           height: 1080,
         },
       });
       console.log("Browser initialized successfully");
+
+      // Test that browser can create pages
+      console.log("Testing page creation...");
+      const testPage = await this.browser.newPage();
+      await testPage.close();
+      console.log("Page creation test successful");
     } catch (error) {
       console.error("Error initializing browser:", error);
       throw error;
@@ -133,6 +145,7 @@ const generator = {
         `✗ Error generating page for ${route.path}:`,
         error.message
       );
+      // Don't throw - continue with other pages
       return false;
     } finally {
       await page.close();
@@ -163,6 +176,7 @@ const generator = {
       }
     } catch (error) {
       console.error("Error generating blog posts:", error);
+      // Don't throw - this shouldn't stop the whole process
     }
   },
 

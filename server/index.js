@@ -1799,7 +1799,7 @@ const server = app.listen(port, () => {
         console.error("Scheduled static generation failed:", err);
       });
     }, REGENERATION_INTERVAL);
-  }, 30000);
+  }, 60000);
 });
 
 process.on("SIGTERM", () => {
