@@ -4,6 +4,8 @@ services:
     build: .
     expose:
       - "3001"
+    shm_size: "1g"
+    mem_limit: "2g"
     environment:
       - NODE_ENV=production
       - VIRTUAL_HOST=tutoriasuniversitarias.com,www.tutoriasuniversitarias.com
@@ -16,7 +18,15 @@ services:
       - .env
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3001/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
