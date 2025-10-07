@@ -4,8 +4,6 @@ services:
     build: .
     expose:
       - "3001"
-    shm_size: "1g"
-    mem_limit: "2g"
     environment:
       - NODE_ENV=production
       - VIRTUAL_HOST=tutoriasuniversitarias.com,www.tutoriasuniversitarias.com
