@@ -1,0 +1,3 @@
+## Non-www to www redirect (inside location / block)
+## Using _location suffix so ACME challenge location block still takes priority
+return 301 https://www.tutoriasuniversitarias.com$request_uri;

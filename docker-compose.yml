@@ -38,12 +38,11 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
+      - ./nginx-vhost-config:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - ./nginx-proxy-config:/etc/nginx/conf.d
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
-      - SKIP_DEFAULT_CONF=true
     restart: always
     depends_on:
       - app
@@ -63,6 +62,5 @@ services:
 
 volumes:
   certs:
-  vhost:
   html:
   acme:
