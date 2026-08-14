@@ -63,7 +63,7 @@ Me gustaría recibir información sobre:
 Quedo atento a su respuesta. ¡Gracias!`);
 
         if (newWindow) {
-          newWindow.location.href = `https://wa.me/18492705605?text=${message}`;
+          newWindow.location.href = `https://wa.me/18492701295?text=${message}`;
         }
 
         setFeedback({
